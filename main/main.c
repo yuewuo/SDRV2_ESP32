@@ -20,8 +20,13 @@ static void httpd_task (void *pvParameters) {
 	}
 }
 
+extern const char str[] asm("_binary_index_html_start");
+extern const char str1[] asm("_binary_action_html_start");
+
 void app_main()
 {
+printf("%s\n", str);
+printf("%s\n", str1);
 	ESP_LOGI(TAG, "main start");
     nvs_init();
     initialise_wifi();

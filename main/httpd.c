@@ -3,7 +3,7 @@
 const static char http_html_hdr[]  =
       "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n";
 
-const static char http_index_hml[] = "<!DOCTYPE html>"
+const static char INDEXHTML[] = "<!DOCTYPE html>"
       "<html>\n"
       "<head>\n"
       "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
@@ -17,6 +17,8 @@ const static char http_index_hml[] = "<!DOCTYPE html>"
       "<h1>Hello world!!!</h1>\n"
       "</body>\n"
       "</html>\n";
+
+//extern const char INDEXHTML[] asm("_binary_index_html_start");
 
 static void http_server_netconn_serve(struct netconn *conn) {
   struct netbuf *inbuf;
@@ -46,7 +48,7 @@ static void http_server_netconn_serve(struct netconn *conn) {
      */
      netconn_write(conn, http_html_hdr, sizeof(http_html_hdr)-1, NETCONN_NOCOPY);
      /* Send our HTML page */
-     netconn_write(conn, http_index_hml, sizeof(http_index_hml)-1, NETCONN_NOCOPY);
+     netconn_write(conn, INDEXHTML, sizeof(INDEXHTML)-1, NETCONN_NOCOPY);
   }
   /* Close the connection (server closes in HTTP) */
   netconn_close(conn);
