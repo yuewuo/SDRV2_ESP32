@@ -1,10 +1,10 @@
-#include "lib.h"
-#include "oledfont.h"  
+#include "lib/lib.h"
+#include "lib/oledfont.h"
 
 static spi_device_handle_t spi;
 
 #define PIN_NUM_MISO 25
-#define PIN_NUM_MOSI 23 
+#define PIN_NUM_MOSI 23
 #define PIN_NUM_CLK  19
 #define PIN_NUM_CS   22
 
@@ -19,7 +19,7 @@ typedef struct {
 } lcd_init_cmd_t;
 
 //Send a command to the OLED. Uses spi_device_transmit, which waits until the transfer is complete.
-void oled_cmd(/*spi_device_handle_t spi, */const uint8_t cmd) 
+void oled_cmd(/*spi_device_handle_t spi, */const uint8_t cmd)
 {
     esp_err_t ret;
     spi_transaction_t t;
@@ -32,7 +32,7 @@ void oled_cmd(/*spi_device_handle_t spi, */const uint8_t cmd)
 }
 
 //Send data to the OLED. Uses spi_device_transmit, which waits until the transfer is complete.
-void oled_data(spi_device_handle_t spi, const uint8_t *data, int len) 
+void oled_data(spi_device_handle_t spi, const uint8_t *data, int len)
 {
     esp_err_t ret;
     spi_transaction_t t;
@@ -47,39 +47,39 @@ void oled_data(spi_device_handle_t spi, const uint8_t *data, int len)
 
 //This function is called (in irq context!) just before a transmission starts. It will
 //set the D/C line to the value indicated in the user field.
-void oled_spi_pre_transfer_callback(spi_transaction_t *t) 
+void oled_spi_pre_transfer_callback(spi_transaction_t *t)
 {
     int dc=(int)t->user;
     gpio_set_level(PIN_NUM_DC, dc);
 }
 
-void OLED_Set_Pos(unsigned char x, unsigned char y) 
-{ 
+void OLED_Set_Pos(unsigned char x, unsigned char y)
+{
 	oled_cmd(0xb0+y);
 	oled_cmd(((x&0xf0)>>4)|0x10);
-	oled_cmd((x&0x0f)|0x01); 
-}   	  
-//Open OLED display  
+	oled_cmd((x&0x0f)|0x01);
+}
+//Open OLED display
 void OLED_Display_On(void)
 {
 	oled_cmd(0X8D); //SET DCDC Command
 	oled_cmd(0X14); //DCDC ON
 	oled_cmd(0XAF); //DISPLAY ON
 }
-//Open OLED display    
+//Open OLED display
 void OLED_Display_Off(void)
 {
 	oled_cmd(0X8D);  //SET DCD Command
 	oled_cmd(0X10);  //DCDC OFF
 	oled_cmd(0XAE);  //DISPLAY OFF
-}		   			 
+}
 //clear screen, black
 const static unsigned char init128_oled[128] = {0};
-void OLED_Clear(void)  
-{  
-	uint8_t i;		    
-	for(i=0;i<8;i++)  
-	{  
+void OLED_Clear(void)
+{
+	uint8_t i;
+	for(i=0;i<8;i++)
+	{
 		oled_cmd(0xb0+i);    //set page address(0~7)
 		oled_cmd(0x00);      //low address
 		oled_cmd(0x10);      //high address
@@ -91,19 +91,19 @@ void OLED_Clear(void)
 //display char at specific location, as well as part of it
 //x:0~127
 //y:0~63
-//mode:0 means reverse display, and 1 means normal display		 
-//size:select char size 16/12 
+//mode:0 means reverse display, and 1 means normal display
+//size:select char size 16/12
 void OLED_ShowChar(uint8_t x, uint8_t y, char chr)
-{      	
+{
 	unsigned char c;
 	c = chr - ' '; //bias
 	if(x>Max_Column-1) {x=0;y=y+2;}
 	if(SIZE == 16) {
-		OLED_Set_Pos(x,y);	
+		OLED_Set_Pos(x,y);
 		oled_data(spi, F8X16+c*16, 8);
 		OLED_Set_Pos(x,y+1);
 		oled_data(spi, F8X16+c*16+8, 8);
-	} else {	
+	} else {
 		OLED_Set_Pos(x,y+1);
 		oled_data(spi, F6x8[c], 6);
 	}
@@ -111,10 +111,10 @@ void OLED_ShowChar(uint8_t x, uint8_t y, char chr)
 //m^n function
 uint32_t oled_pow(uint8_t m, uint8_t n)
 {
-	uint32_t result=1;	 
-	while(n--) result*=m;    
+	uint32_t result=1;
+	while(n--) result*=m;
 	return result;
-}				  
+}
 //display two number
 //x,y :start axis
 //len :length of number
@@ -122,7 +122,7 @@ uint32_t oled_pow(uint8_t m, uint8_t n)
 //mode:0,tianchong, 1,diejia
 //num :number(0~4294967295)
 void OLED_ShowNum(uint8_t x, uint8_t y, uint32_t num, uint8_t len, uint8_t size)
-{         	
+{
 	uint8_t t, temp;
 	uint8_t enshow=0;
 	for(t=0;t<len;t++) {
@@ -132,11 +132,11 @@ void OLED_ShowNum(uint8_t x, uint8_t y, uint32_t num, uint8_t len, uint8_t size)
 			if(temp==0) {
 				OLED_ShowChar(x+(size/2)*t,y,' ');
 				continue;
-			} else enshow=1; 
+			} else enshow=1;
 		}
-	 	OLED_ShowChar(x+(size/2)*t,y,temp+'0'); 
+	 	OLED_ShowChar(x+(size/2)*t,y,temp+'0');
 	}
-} 
+}
 //show string
 void OLED_ShowString(uint8_t x, uint8_t y, char *chr)
 {
@@ -149,23 +149,23 @@ void OLED_ShowString(uint8_t x, uint8_t y, char *chr)
 	}
 }
 //show Chinese
-void OLED_ShowCHinese(uint8_t x, uint8_t y, uint8_t no)
-{      			    
+/*void OLED_ShowCHinese(uint8_t x, uint8_t y, uint8_t no)
+{
 	uint8_t t,adder=0;
-	OLED_Set_Pos(x,y);	
+	OLED_Set_Pos(x,y);
     oled_data(spi, Hzk[2*no], 16);
     adder+=16;
-    OLED_Set_Pos(x,y+1);	
+    OLED_Set_Pos(x,y+1);
     oled_data(spi, Hzk[2*no+1], 16);
-    adder+=16;	
-}
+    adder+=16;
+}*/
 //show BMP(128*64), start at(x(0~128), y(0~7))
 void OLED_DrawBMP(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, unsigned char BMP[])
-{ 	
+{
  unsigned int j=0;
  unsigned char x,y;
-  
-  if(y1%8==0) y=y1/8;      
+
+  if(y1%8==0) y=y1/8;
   else y=y1/8+1;
 	for(y=y0;y<y1;y++)
 	{
@@ -173,10 +173,10 @@ void OLED_DrawBMP(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, unsigned char 
 	    oled_data(spi, BMP+j, x1-x0);
 	    j+=(x1-x0);
 	}
-} 
+}
 
 
-//Init SSD1306					    
+//Init SSD1306
 void OLED_Init(void)
 {
 	esp_err_t ret;
@@ -201,7 +201,7 @@ void OLED_Init(void)
     //Attach the OLED to the SPI bus
     ret=spi_bus_add_device(HSPI_HOST, &devcfg, &spi);
     assert(ret==ESP_OK);
-    
+
     //int cmd=0;
     //Initialize non-SPI GPIOs
     gpio_set_direction(PIN_NUM_DC, GPIO_MODE_OUTPUT);
@@ -213,7 +213,7 @@ void OLED_Init(void)
     gpio_set_level(PIN_NUM_RST, 1);
     vTaskDelay(100 / portTICK_RATE_MS);
 
-					  
+
 	oled_cmd(0xAE);//--turn off oled panel
 	oled_cmd(0x00);//---set low column address
 	oled_cmd(0x10);//---set high column address
@@ -240,39 +240,10 @@ void OLED_Init(void)
 	oled_cmd(0x8D);//--set Charge Pump enable/disable
 	oled_cmd(0x14);//--set(0x10) disable
 	oled_cmd(0xA4);// Disable Entire Display On (0xa4/0xa5)
-	oled_cmd(0xA6);// Disable Inverse Display On (0xa6/a7) 
+	oled_cmd(0xA6);// Disable Inverse Display On (0xa6/a7)
 	oled_cmd(0xAF);//--turn on oled panel
-	
-	oled_cmd(0xAF); /*display ON*/ 
+
+	oled_cmd(0xAF); /*display ON*/
 	OLED_Clear();
-	OLED_Set_Pos(0,0); 	
-}  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	OLED_Set_Pos(0,0);
+}

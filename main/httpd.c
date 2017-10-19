@@ -1,4 +1,11 @@
-#include "lib.h"
+#include "lib/lib.h"
+#include "lib/duhttputil.h"
+
+static struct DuHttpReceiver duHttpReceiver;
+static struct DuHttp duHttp;
+void DuHttp_ELOG(const char* str) {
+  printf("DuHTTP: %s\n", str);
+}
 
 const static char http_html_hdr[]  =
       "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n";
@@ -30,10 +37,19 @@ static void http_server_netconn_serve(struct netconn *conn) {
   err = netconn_recv(conn, &inbuf);
   if (err == ERR_OK) {
     netbuf_data(inbuf, (void**)&buf, &buflen);
+
+    DuHttpReceiver_InBuf(&duHttpReceiver, buf, buflen);
+    ESP_LOGI("DuHTTP", "buflen = %d, %d, %d", buflen, duHttpReceiver.queue_write, duHttpReceiver.queue_read);
+    ESP_LOGI("DuHTTP", "available size: %d", DuHttpReceiver_AvailableSize(&duHttpReceiver));
+    while (DuHttpReceiver_TryReadPack(&duHttpReceiver, &duHttp)) {
+      ESP_LOGI("DuHTTP", "Got Pack!");
+    }
+
     /* Is this an HTTP GET command?
     there are other formats for GET, and we're keeping it very simple )*/
-    printf("%s \n", buf);
-    printf("char is:%c\n", buf[9]);
+    //buf[buflen] = 0;
+    //printf("%s \n", buf);
+    //printf("char is:%c\n", buf[9]);
     //wuyue motor!!!
     /*if(buf[9] == 'z') {
     	motor_cnt += 5;
@@ -41,14 +57,14 @@ static void http_server_netconn_serve(struct netconn *conn) {
     if(buf[9] == 'f') {
     	motor_cnt -= 5;
     }*/
-    
+
      /* Send the HTML header
              * subtract 1 from the size, since we dont send the \0 in the string
              * NETCONN_NOCOPY: our data is const static, so no need to copy it
      */
-     netconn_write(conn, http_html_hdr, sizeof(http_html_hdr)-1, NETCONN_NOCOPY);
+     /////////netconn_write(conn, http_html_hdr, sizeof(http_html_hdr)-1, NETCONN_NOCOPY);
      /* Send our HTML page */
-     netconn_write(conn, INDEXHTML, sizeof(INDEXHTML)-1, NETCONN_NOCOPY);
+     /////////netconn_write(conn, INDEXHTML, sizeof(INDEXHTML)-1, NETCONN_NOCOPY);
   }
   /* Close the connection (server closes in HTTP) */
   netconn_close(conn);
@@ -60,12 +76,18 @@ static void http_server_netconn_serve(struct netconn *conn) {
 void httpd(){
   struct netconn *conn, *newconn;
   err_t err;
+
+  DuHttpReceiver_Initialize(&duHttpReceiver);
+  DuHttp_Initialize(&duHttp);
+  ESP_LOGI("DuHTTP", "available size: %d",
+      DuHttpReceiver_AvailableSize(&duHttpReceiver));
+
   conn = netconn_new(NETCONN_TCP);
   netconn_bind(conn, NULL, 80);
   netconn_listen(conn);
   ESP_LOGI("http_server", "listened");
   do {
-      ESP_LOGI("http_server", "doing");
+      //ESP_LOGI("http_server", "doing");
       err = netconn_accept(conn, &newconn);
       ESP_LOGI("http_server", "accepted");
       if (err == ERR_OK) {

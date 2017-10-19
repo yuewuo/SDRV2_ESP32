@@ -74,8 +74,8 @@ CONFIG_MONITOR_BAUD=115200
 #
 # Project Settings
 #
-CONFIG_WIFI_SSID="Wireless PKU"
-CONFIG_WIFI_PASSWORD=""
+CONFIG_WIFI_SSID="wulinger"
+CONFIG_WIFI_PASSWORD="number502daxinke"
 
 #
 # Partition Table

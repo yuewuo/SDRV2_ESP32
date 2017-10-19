@@ -1,4 +1,4 @@
-#include "lib.h"
+#include "lib/lib.h"
 
 EventGroupHandle_t wifi_event_group;
 
