@@ -1,6 +1,6 @@
-#include "lib.h"
+#include "lib/lib.h"
 
-#include "bmp.h"
+#include "lib/bmp.h"
 
 static char nvs_got_str[1024];
 esp_err_t nvs_quick_get_str(const char* key, const char* default_value) {
@@ -33,8 +33,8 @@ void app() {
 	OLED_Init();
 	OLED_Clear();
 	t=' ';
-	while(1) 
-	{		
+	while(1)
+	{
 		/*ESP_LOGI("app", "OLED start");
 		OLED_Clear();
 	//	LED_ON;
@@ -46,16 +46,16 @@ void app() {
 		OLED_ShowCHinese(90,0,5);//¿Æ
 		OLED_ShowCHinese(108,0,6);//ŒŒ
 		OLED_ShowString(0,3,"1.3' OLED TEST");
-		//OLED_ShowString(8,2,"ZHONGJINGYUAN");  
-	 //	OLED_ShowString(20,4,"2014/05/01");  
-		OLED_ShowString(0,6,"ASCII:");  
-		OLED_ShowString(63,6,"CODE:");  
-		OLED_ShowChar(48,6,t);//ÏÔÊŸASCII×Ö·û	   
+		//OLED_ShowString(8,2,"ZHONGJINGYUAN");
+	 //	OLED_ShowString(20,4,"2014/05/01");
+		OLED_ShowString(0,6,"ASCII:");
+		OLED_ShowString(63,6,"CODE:");
+		OLED_ShowChar(48,6,t);//ÏÔÊŸASCII×Ö·û
 		t++;
 		if(t>'~')t=' ';
-		OLED_ShowNum(103,6,t,3,16);//ÏÔÊŸASCII×Ö·ûµÄÂëÖµ 	
-			
-	
+		OLED_ShowNum(103,6,t,3,16);//ÏÔÊŸASCII×Ö·ûµÄÂëÖµ
+
+
 		delay_ms(1000);
 		OLED_Clear();
 		delay_ms(1000);
@@ -69,4 +69,3 @@ void app() {
 		ESP_LOGI("t", "%d", t++);
 	}
 }
-

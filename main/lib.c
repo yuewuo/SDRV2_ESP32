@@ -1,4 +1,4 @@
-#include "lib.h"
+#include "lib/lib.h"
 
 static const char *TAG = "basiclib";
 
@@ -97,8 +97,3 @@ bool nvs_set_str_safe(const char* key, const char* value) {
 	err = nvs_commit(my_nvs_handle);
 	return err == ESP_OK;
 }
-
-
-
-
-

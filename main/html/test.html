@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESP32 Controller</title>
+<script src="https://code.jquery.com/jquery-3.2.1.js"
+integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+crossorigin="anonymous"></script>
+<link rel="stylesheet"
+href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css"
+integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+crossorigin="anonymous">
+<script type="text/javascript">
+$(document).ready(function(){
+    /*$("p").click(function(){
+        $(this).hide();
+    });*/
+    $("#turnOnLight").click(function() {
+      turnOn = $.ajax({url:"/util/turnOnLight",async:false});
+      $("#turnonoffreturn").html(turnOn.responseText);
+    });
+    $("#turnOffLight").click(function() {
+      turnOff = $.ajax({url:"/util/turnOffLight",async:false});
+      $("#turnonoffreturn").html(turnOff.responseText);
+    });
+});
+</script>
+</head>
+<body>
+  <div class="container">
+    <!--p>If you click on me, I will disappear.</p-->
+    <h1>Welcome to use ESP32 Easy-Develop Architecture</h1>
+
+    <div id="turnonoffreturn"><h2>Press the Button</h2></div>
+    <button id="turnOnLight" type="button" class="btn btn-primary">turnOnLight</button>
+    <button id="turnOffLight" type="button" class="btn btn-warning">turnOffLight</button>
+  </div>
+
+</body>
+</html>
