@@ -32,6 +32,34 @@ const static struct StaticListType StaticList[] = {
 };
 const static int StaticListLength = (sizeof(StaticList) / sizeof(struct StaticListType));
 
+#define UTILBIAS sizeof("/util/")-1
+#define UTILTAG "UTIL"
+int duHttpUtilHandler(struct DuHttp* inPack, struct DuHttp* outPack) {
+  if (!strcmp((inPack->ask.requestedURL) + UTILBIAS, "turnOnLight")) {
+    DuHttp_Initialize_RESPONSE(outPack, 200, "OK");
+    DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
+    DuHttp_EndHeadline(outPack);
+    DuHttp_PushDataString(outPack, "turn on finished");
+    ESP_LOGI(UTILTAG, "LED turned on");
+    gpio_set_level(BLINK_GPIO, 1);
+    return 1;
+  }
+  if (!strcmp((inPack->ask.requestedURL) + UTILBIAS, "turnOffLight")) {
+    DuHttp_Initialize_RESPONSE(outPack, 200, "OK");
+    DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
+    DuHttp_EndHeadline(outPack);
+    DuHttp_PushDataString(outPack, "turn off finished");
+    ESP_LOGI(UTILTAG, "LED turned off");
+    gpio_set_level(BLINK_GPIO, 0);
+    return 1;
+  }
+  return 0;
+}
+void duHttpInit() {
+  gpio_pad_select_gpio(BLINK_GPIO);
+  gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+}
+
 int duHttpHandler(const char* inbuf, int size, char* outbuf, int maxsize) {
 	int returnSize = 0;
 	DuHttpReceiver_InBuf(&duHttpReceiver, inbuf, size);
@@ -45,7 +73,12 @@ int duHttpHandler(const char* inbuf, int size, char* outbuf, int maxsize) {
 		case DuHttp_Type_GET:
 			printf("Pack Type is: DuHttp_Type_GET\n");
 			printf("requestedURL: %s\n", duHttp.ask.requestedURL);
-			for (int i=0; i<StaticListLength; ++i) {
+      if (!memcmp(duHttp.ask.requestedURL, "/util/", sizeof("/util/")-1)) {
+        //move to util handler
+        if (duHttpUtilHandler(&duHttp, &sendDuHttp)) {
+          returnSize = DuHttpSend(&sendDuHttp, outbuf, maxsize);
+        }
+      } else for (int i=0; i<StaticListLength; ++i) {
 				if (!strcmp(StaticList[i].key, duHttp.ask.requestedURL)) {
 					DuHttp_Initialize_RESPONSE(&sendDuHttp, 200, "OK");
 					DuHttp_PushHeadline(&sendDuHttp, "Connection", "keep-alive");

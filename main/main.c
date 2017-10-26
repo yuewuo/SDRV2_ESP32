@@ -30,6 +30,7 @@ printf("%s\n", str1);
 	ESP_LOGI(TAG, "main start");
     nvs_init();
     initialise_wifi();
+		duHttpInit();
     //xTaskCreate(&https_login_PKU_Gateway_task, "https_login_PKU_Gateway_task", 8192, NULL, 5, NULL);
     //xTaskCreate(&call_baidu, "call_baidu", 8192, NULL, 5, NULL);
     ESP_LOGI(TAG, "main creating tasks");

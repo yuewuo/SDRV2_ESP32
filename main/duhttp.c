@@ -58,6 +58,11 @@ void DuHttp_PushData(struct DuHttp* d, const char* data, int dataLength)
 	d->contentLength += dataLength;
 }
 
+void DuHttp_PushDataString(struct DuHttp* d, const char* str)
+{
+  DuHttp_PushData(d, str, strlen(str));
+}
+
 void DuHttp_EndHeadline(struct DuHttp* d)
 {
 	strcpy(d->content, "\r\n"); d->content += 3;

@@ -49,6 +49,7 @@ void DuHttp_Release(struct DuHttp* d);
 char* DuHttp_FindValueByKey(struct DuHttp* d, const char* key);
 void DuHttp_PushHeadline(struct DuHttp* d, const char* key, const char* value);
 void DuHttp_PushData(struct DuHttp* d, const char* data, int dataLength);
+void DuHttp_PushDataString(struct DuHttp* d, const char* str);
 void DuHttp_EndHeadline(struct DuHttp* d);
 
 struct DuHttpReceiver
@@ -78,4 +79,3 @@ int DuHttpSend(struct DuHttp* h, char* buf, int max_size);
 #define FALSE 0
 
 #endif // DUHTTPUTIL_H
-
