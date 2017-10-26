@@ -8,6 +8,6 @@
 #COMPONENT_EMBED_TXTFILES := server_root_cert.pem
 
 # embed files index.html
-COMPONENT_EMBED_TXTFILES := html/index.html html/action.html
+COMPONENT_EMBED_TXTFILES := html/index.html html/action.html html/404.html html/test.html
 
 

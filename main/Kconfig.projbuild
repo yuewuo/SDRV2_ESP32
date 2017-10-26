@@ -14,4 +14,10 @@ config WIFI_PASSWORD
 
 		Can be left blank if the network has no security set.
 
+config HOSTNAME
+	string "Host Name"
+	default "Geeklab"
+	help
+		The Host Name of DuHttpd Server
+
 endmenu

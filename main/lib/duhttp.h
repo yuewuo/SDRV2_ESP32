@@ -1,11 +1,12 @@
-﻿#ifndef DUHTTPUTIL_H
+#ifndef DUHTTPUTIL_H
 #define DUHTTPUTIL_H
 
 #include <string.h>
 #include <stdio.h>
 
-#define DUHTTP_MAXLINESIZE 256
-#define DUHTTPRECEIVER_BUFFERSIZE 2048
+#define DUHTTP_MAXLINESIZE 512
+#define DUHTTP_MAXHEADLINECOUNT 32
+#define DUHTTPRECEIVER_BUFFERSIZE 4096
 #define DUHTTP_DATASIZE (DUHTTPRECEIVER_BUFFERSIZE + 0) //must be positive
 #define DUHTTPSENDER_DATASIZE 1024
 
@@ -13,32 +14,42 @@
 void DuHttp_ELOG(const char* str);
 // and call initial funtion whenever you need to use them next time!
 
-struct DuHttp_AskStruct
-{
-    char requestedURI[128];
-};
+#define UINT8 unsigned char
 
-struct DuHttp_ResponseStruct
-{
-    int statusCode;
-    char reasonPhrase[32];
-};
-
+#define DuHttp_Type_UNKNOWN ((UINT8)0)
+#define DuHttp_Type_GET ((UINT8)1)
+#define DuHttp_Type_POST ((UINT8)2)
+#define DuHttp_Type_RESPONSE_HTTP1X ((UINT8)3)
 struct DuHttp
 {
-#define DuHttp_Type_UNKNOWN 0xFF
-#define DuHttp_Type_GET 0
-#define DuHttp_Type_POST 1
-#define DuHttp_Type_RESPONSE_HTTP10 2
-    char type;
-    int contentLength;
+    UINT8 type;
     char data[DUHTTP_DATASIZE];
+    char* content;
+    int contentLength;
+    int headlineCount;
+    struct {
+    	char* key;
+    	char* value;
+	} headline[DUHTTP_MAXHEADLINECOUNT];
     union {
-        struct DuHttp_AskStruct ask;
-        struct DuHttp_ResponseStruct response;
+        struct {
+			char requestedURL[128];
+		} ask;
+        struct {
+    		int statusCode;
+    		char reasonPhrase[32];
+		} response;
     };
 };
 void DuHttp_Initialize(struct DuHttp* d);
+void DuHttp_Initialize_GET(struct DuHttp* d, const char* requestedURL);
+void DuHttp_Initialize_POST(struct DuHttp* d, const char* requestedURL);
+void DuHttp_Initialize_RESPONSE(struct DuHttp* d, int statusCode, const char* reasonPhrase);
+void DuHttp_Release(struct DuHttp* d);
+char* DuHttp_FindValueByKey(struct DuHttp* d, const char* key);
+void DuHttp_PushHeadline(struct DuHttp* d, const char* key, const char* value);
+void DuHttp_PushData(struct DuHttp* d, const char* data, int dataLength);
+void DuHttp_EndHeadline(struct DuHttp* d);
 
 struct DuHttpReceiver
 {
@@ -51,7 +62,6 @@ struct DuHttpReceiver
     char queue[DUHTTPRECEIVER_BUFFERSIZE];
     int queue_write;
     int queue_read;
-    char isLastLF;
 };
 
 void DuHttpReceiver_Reset(struct DuHttpReceiver* r);
@@ -64,4 +74,8 @@ int DuHttpReceiver_AvailableSize(struct DuHttpReceiver* r);
 
 int DuHttpSend(struct DuHttp* h, char* buf, int max_size);
 
+#define TRUE 1
+#define FALSE 0
+
 #endif // DUHTTPUTIL_H
+
