@@ -74,8 +74,8 @@ CONFIG_MONITOR_BAUD=115200
 #
 # Project Settings
 #
-CONFIG_WIFI_SSID="wulinger"
-CONFIG_WIFI_PASSWORD="number502daxinke"
+CONFIG_WIFI_SSID="geeklab"
+CONFIG_WIFI_PASSWORD="ai@geeklab"
 CONFIG_HOSTNAME="WuYue's ESP32"
 
 #
