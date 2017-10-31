@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<!-- Searching for "AddHint" for advice when adding your app pages-->
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>ESP32 App</title>
+<script src="js/jquery-3.2.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/processing.min.js"></script>
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/app.css" rel="stylesheet">
+</head>
+<body>
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="">ESP32 App</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#mainpage">Introduction</a></li>
+            <li><a href="#settings">Settings</a></li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">Help</a></li>
+            <li class="dropdown">
+            	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            		Apps <b class="caret"></b>
+            	</a>
+							<!-- LEDController page -->
+            	<ul class="dropdown-menu">
+            		<li><a href="#LEDcontroller">LED Controller</a></li>
+            	</ul>
+							<!-- AddHint: add li element here -->
+
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+<div class="tab-content">
+
+<!--main page-->
+	<div class="tab-pane active container" id="mainpage">
+    <section style="background-color: #f5f5f5">
+    	<div class="container">
+    		<div class="row">
+    			<div class="col-lg-12 text-center">
+    				<h2>ESP32 Controller</h2>
+    			</div>
+    		</div>
+    		<div class="row">
+    			<div class="col-lg-8 col-lg-offset-2">
+    				<h3>Introdution</h3>
+    				<p>This Web App is used for controlling ESP32, using POST and GET request. With Web Technology and API provided by firmware in ESP32, the behavior of ESP32 could be modified without re-flash the firmware.</p>
+    			</div>
+    		</div>
+    	</div>
+    </section>
+	</div>
+
+<!--settings page-->
+	<div id="settings" class="tab-pane container">
+    <section style="background-color: #f5f5f5">
+    	<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion"
+						   href="#settings_basic_collapse1">
+							basic settings
+						</a>
+					</h4>
+				</div>
+				<div id="settings_basic_collapse1" class="panel-collapse collapse in">
+					<div class="panel-body">
+						<p>IP address of ESP32 (must be in the same LAN)</p>
+						<div id="settings_basic_testconnection_div" class="col-lg-6">
+							<div class="input-group">
+								<input id="settings_basic_esp32IP_input" type="text" class="form-control" placeholder="IP address">
+								<span class="input-group-btn">
+									<button type="button" id="settings_basic_testconnections" autocomplete="off"
+									data-loading-text="Testing..." class="btn btn-primary" type="button">Test Connection</button>
+								</span>
+							</div><!-- /input-group -->
+						</div><!-- /.col-lg-6 -->
+					</div>
+				</div>
+			</div>
+    </section>
+  </div>
+
+<!-- LED Controller page --> <!-- must full screen to perform like an APP -->
+	<div id="LEDcontroller" class="tab-pane container" style="top: 50px; left: 0px; right: 0px; bottom: 15px; position: absolute;"></div>
+
+<!-- AddHint: Adding your page here -->
+
+
+<script type="text/javascript">
+	$(function() {
+		$('#LEDcontroller').load('apps/LEDController.html');
+		//AddHint: Adding Load code here
+	});
+</script>
+
+	<!--script type="text/javascript">
+	$(document).ready(function(){
+	    /*$("p").click(function(){
+	        $(this).hide();
+	    });*/
+	    $("#turnOnLight").click(function() {
+	      turnOn = $.ajax({url:"/util/turnOnLight",async:false});
+	      $("#turnonoffreturn").html(turnOn.responseText);
+	    });
+	    $("#turnOffLight").click(function() {
+	      turnOff = $.ajax({url:"/util/turnOffLight",async:false});
+	      $("#turnonoffreturn").html(turnOff.responseText);
+	    });
+	});
+</script-->
+
+<!--end tab content-->
+</div>
+
+<script src="js/functions.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!--div id="turnonoffreturn"><h2>Press the Button</h2></div>
+    <button id="turnOnLight" type="button" class="btn btn-primary">turnOnLight</button>
+    <button id="turnOffLight" type="button" class="btn btn-warning">turnOffLight</button-->
+
+</body>
+</html>

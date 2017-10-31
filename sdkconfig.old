@@ -76,6 +76,7 @@ CONFIG_MONITOR_BAUD=115200
 #
 CONFIG_WIFI_SSID="wulinger"
 CONFIG_WIFI_PASSWORD="number502daxinke"
+CONFIG_HOSTNAME="WuYue's ESP32"
 
 #
 # Partition Table
