@@ -53,6 +53,15 @@ int duHttpUtilHandler(struct DuHttp* inPack, struct DuHttp* outPack) {
     gpio_set_level(BLINK_GPIO, 0);
     return 1;
   }
+  if (!strcmp((inPack->ask.requestedURL) + UTILBIAS, "status")) {
+    DuHttp_Initialize_RESPONSE(outPack, 200, "OK");
+    DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
+    DuHttp_PushHeadline(&sendDuHttp,"Access-Control-Allow-Origin", "*");
+    DuHttp_EndHeadline(outPack);
+    DuHttp_PushDataString(outPack, "ESP32 1.0.0");
+    ESP_LOGI(UTILTAG, "Ask for Status");
+    return 1;
+  }
   return 0;
 }
 void duHttpInit() {
