@@ -1,0 +1,17 @@
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+  padding-top: 50px;
+}
+
+/*
+ * Top navigation
+ * Hide default border to remove 1px line.
+ */
+.navbar-fixed-top {
+  	border: 0;
+}
+
+.container {
+	padding-top: 15px;
+	/*padding-bottom: 10px;*/
+}
