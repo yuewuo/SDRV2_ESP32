@@ -88,40 +88,43 @@ $(document).ready(function(){
 
 <!--settings page-->
 	<div id="settings" class="tab-pane container">
-    	<section style="background-color: #f5f5f5">
+    <section style="background-color: #f5f5f5">
     	<div class="panel panel-default">
-		<div class="panel-heading">
-			<h4 class="panel-title">
-				<a data-toggle="collapse" data-parent="#accordion" 
-				   href="#collapseOne">
-					basic settings
-				</a>
-			</h4>
-		</div>
-		<div id="collapseOne" class="panel-collapse collapse in">
-			<div class="panel-body">
-				Nihil anim keffiyeh helvetica, craft beer labore wes anderson 
-				cred nesciunt sapiente ea proident. Ad vegan excepteur butcher 
-				vice lomo.
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion"
+						   href="#settings_basic_collapse1">
+							basic settings
+						</a>
+					</h4>
+				</div>
+				<div id="settings_basic_collapse1" class="panel-collapse collapse in">
+					<div class="panel-body">
+						<p>IP address of ESP32 (must be in the same LAN)</p>
+						<div id="settings_basic_testconnection_div" class="col-lg-6">
+							<div class="input-group">
+								<input id="settings_basic_esp32IP_input" type="text" class="form-control" placeholder="IP address">
+								<span class="input-group-btn">
+									<button type="button" id="settings_basic_testconnections" autocomplete="off"
+									data-loading-text="Testing..." class="btn btn-primary" type="button">Test Connection</button>
+								</span>
+							</div><!-- /input-group -->
+						</div><!-- /.col-lg-6 -->
+					</div>
+				</div>
 			</div>
-		</div>
-		</div>
-    	</section>
-    </div>
+    </section>
+  </div>
 
 <!--settings page-->
 	<div id="LEDcontroller" class="tab-pane container">
-    	<h1>LED Controller</h1>
-    </div>
-	
+    <h1>LED Controller</h1>
+  </div>
+
 <!--end tab content-->
 </div>
-<script>
-$('#navbar a').click(function (e) {
-	e.preventDefault();
-	$(this).tab('show');
-});
-</script>
+
+<script src="js/functions.js"></script>
 
 
 
