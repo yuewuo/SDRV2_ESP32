@@ -10,4 +10,8 @@
 # embed files index.html
 COMPONENT_EMBED_TXTFILES := html/index.html html/action.html html/404.html html/test.html
 
+COMPONENT_SRCDIRS += driver/WS2812 driver/OLED12864 driver/HBridgeMotor
+COMPONENT_SRCDIRS += shellenv/testshell
 
+COMPONENT_ADD_INCLUDEDIRS += include
+COMPONENT_ADD_INCLUDEDIRS += driver/WS2812

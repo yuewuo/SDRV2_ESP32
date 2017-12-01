@@ -1,4 +1,4 @@
-#include "lib/lib.h"
+#include "autoinclude.h"
 
 static const char *TAG = "basiclib";
 
@@ -96,4 +96,8 @@ bool nvs_set_str_safe(const char* key, const char* value) {
 	if (err != ESP_OK) return false;
 	err = nvs_commit(my_nvs_handle);
 	return err == ESP_OK;
+}
+
+void delay_ms(int ms) {
+	vTaskDelay(ms / portTICK_RATE_MS);
 }

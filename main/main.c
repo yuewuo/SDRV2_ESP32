@@ -1,4 +1,4 @@
-#include "lib/lib.h"
+#include "autoinclude.h"
 
 EventGroupHandle_t wifi_event_group;
 
@@ -35,6 +35,7 @@ printf("%s\n", str1);
     //xTaskCreate(&call_baidu, "call_baidu", 8192, NULL, 5, NULL);
     ESP_LOGI(TAG, "main creating tasks");
     xTaskCreate(&httpd_task, "httpd_task", 2048, NULL, 5, NULL);
-    xTaskCreate(&app_task, "app_task", 8192, NULL, 5, NULL);
-    ESP_LOGI(TAG, "main end");
+	xTaskCreate(&app_task, "app_task", 8192, NULL, 5, NULL);
+	xTaskCreate(WS2812B.demo.task, "ws2812host_task", 2048, NULL, 5, NULL);
+	ESP_LOGI(TAG, "main end");
 }

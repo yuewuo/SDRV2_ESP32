@@ -1,5 +1,4 @@
-#include "lib/lib.h"
-#include "lib/duhttp.h"
+#include "autoinclude.h"
 
 #define HOSTNAME CONFIG_HOSTNAME
 
@@ -35,6 +34,8 @@ const static int StaticListLength = (sizeof(StaticList) / sizeof(struct StaticLi
 #define UTILBIAS sizeof("/util/")-1
 #define UTILTAG "UTIL"
 int duHttpUtilHandler(struct DuHttp* inPack, struct DuHttp* outPack) {
+    int r, g, b;
+    const char *tmpstr;
   if (!strcmp((inPack->ask.requestedURL) + UTILBIAS, "turnOnLight")) {
     DuHttp_Initialize_RESPONSE(outPack, 200, "OK");
     DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
@@ -62,9 +63,24 @@ int duHttpUtilHandler(struct DuHttp* inPack, struct DuHttp* outPack) {
     ESP_LOGI(UTILTAG, "Ask for Status");
     return 1;
   }
+  /*if (!memcmp((inPack->ask.requestedURL) + UTILBIAS, "WS2812ALL=", strlen("WS2812ALL="))) {
+      DuHttp_Initialize_RESPONSE(outPack, 200, "OK");
+      DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
+      DuHttp_EndHeadline(outPack);
+      tmpstr = (inPack->ask.requestedURL) + UTILBIAS + strlen("WS2812ALL=");
+      DuHttp_PushDataString(outPack, tmpstr);
+      sscanf(tmpstr, "%d,%d,%d", &r, &g, &b);
+      ESP_LOGI(UTILTAG, "WS2812ALL=%d,%d,%d", r, g, b);
+      ws2812host_state.cmd.type = WS2812CMDTYPE_ALLCHANGE;
+      ws2812host_state.cmd.r = r & 0x0FF;
+      ws2812host_state.cmd.g = g & 0x0FF;
+      ws2812host_state.cmd.b = b & 0x0FF;
+      return 1;
+  }*/
   return 0;
 }
 void duHttpInit() {
+    //ws2812host_state.LEDCount = 16;
   gpio_pad_select_gpio(BLINK_GPIO);
   gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
 }

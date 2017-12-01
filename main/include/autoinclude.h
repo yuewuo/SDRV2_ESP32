@@ -1,9 +1,15 @@
+#ifndef AUTOINCLUDE_H
+#define AUTOINCLUDE_H
+
+// The system includes
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
+#include "freertos/portmacro.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_event_loop.h"
@@ -11,11 +17,11 @@
 #include "esp_system.h"
 #include "nvs_flash.h"
 #include "nvs.h"
-#include "driver/spi_master.h"
 #include "soc/gpio_struct.h"
+#include "soc/rmt_struct.h"
+#include "driver/spi_master.h"
 #include "driver/gpio.h"
-#include "freertos/portmacro.h"
-
+#include "driver/rmt.h"
 #include "lwip/err.h"
 #include "lwip/sockets.h"
 #include "lwip/sys.h"
@@ -24,7 +30,6 @@
 #include "lwip/api.h"
 #include "lwip/opt.h"
 #include "tcpip_adapter.h"
-
 #include "mbedtls/platform.h"
 #include "mbedtls/net.h"
 #include "mbedtls/esp_debug.h"
@@ -33,6 +38,11 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/error.h"
 #include "mbedtls/certs.h"
+
+// user includes
+
+#include "WS2812B.h"
+#include "duhttp.h"
 
 //main.c
 static const int CONNECTED_BIT = BIT0;
@@ -54,7 +64,7 @@ extern int32_t nvs_get_i32_safe(const char* key, int32_t default_value);
 extern bool nvs_set_i32_safe(const char* key, int32_t value);
 extern esp_err_t nvs_get_str_safe(const char* key, const char* default_value, char* str, int max_length);
 extern bool nvs_set_str_safe(const char* key, const char* value);
-
+extern void delay_ms(int ms);
 
 //app.c
 extern void app();
@@ -99,3 +109,5 @@ void duHttpInit();
 //extern int motor_cnt;
 //void motor_task(void);
 //void motor_init(void);
+
+#endif // AUTOINCLUDE_H
