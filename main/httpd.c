@@ -1,10 +1,12 @@
 #include "autoinclude.h"
+#include "shellutil.h"
+#include "console/console.h"
 
 #define HOSTNAME CONFIG_HOSTNAME
 
-struct DuHttpReceiver duHttpReceiver;
-struct DuHttp duHttp;
-struct DuHttp sendDuHttp;
+static struct DuHttpReceiver duHttpReceiver;
+static struct DuHttp duHttp;
+static struct DuHttp sendDuHttp;
 void DuHttp_ELOG(const char* str) {
   printf("DuHTTP Error: %s\n", str);
 }
@@ -13,6 +15,8 @@ extern const char INDEX_HTML[] asm("_binary_index_html_start");
 extern const char INDEX_HTML_END[] asm("_binary_index_html_end");
 extern const char TEST_HTML[] asm("_binary_test_html_start");
 extern const char TEST_HTML_END[] asm("_binary_test_html_end");
+extern const char FAVICON_ICO[] asm("_binary_favicon_ico_start");
+extern const char FAVICON_ICO_END[] asm("_binary_favicon_ico_end");
 
 extern const char ERR_404_HTML[] asm("_binary_404_html_start");
 extern const char ERR_404_HTML_END[] asm("_binary_404_html_end");
@@ -28,6 +32,7 @@ const static struct StaticListType StaticList[] = {
 	{"/", INDEX_HTML, INDEX_HTML_END, "text/html"},
 	{"/404.html", ERR_404_HTML, ERR_404_HTML_END, "text/html"},
 	{"/test.html", TEST_HTML, TEST_HTML_END, "text/html"},
+    {"/favicon.ico", FAVICON_ICO, FAVICON_ICO_END, "image/x-icon"},
 };
 const static int StaticListLength = (sizeof(StaticList) / sizeof(struct StaticListType));
 
@@ -98,12 +103,21 @@ int duHttpHandler(const char* inbuf, int size, char* outbuf, int maxsize) {
 		case DuHttp_Type_GET:
 			printf("Pack Type is: DuHttp_Type_GET\n");
 			printf("requestedURL: %s\n", duHttp.ask.requestedURL);
-      if (!memcmp(duHttp.ask.requestedURL, "/util/", sizeof("/util/")-1)) {
-        //move to util handler
-        if (duHttpUtilHandler(&duHttp, &sendDuHttp)) {
-          returnSize = DuHttpSend(&sendDuHttp, outbuf, maxsize);
-        }
-      } else for (int i=0; i<StaticListLength; ++i) {
+            if (!memcmp(duHttp.ask.requestedURL, "/util/", sizeof("/util/")-1)) {
+                // move to util handler
+                if (duHttpUtilHandler(&duHttp, &sendDuHttp)) {
+                    returnSize = DuHttpSend(&sendDuHttp, outbuf, maxsize);
+                }
+            } else if (!memcmp(duHttp.ask.requestedURL, "/exec/", sizeof("/exec/")-1)) {
+                // move to console to execute
+                Shell.Out.clear();
+                Console.exec(duHttp.ask.requestedURL + sizeof("/exec/")-1);
+                DuHttp_Initialize_RESPONSE(&sendDuHttp, 200, "OK");
+                DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/plain");
+                DuHttp_EndHeadline(&sendDuHttp);
+                DuHttp_PushData(&sendDuHttp, Shell.Out.buffer(), Shell.Out.length());
+                returnSize = DuHttpSend(&sendDuHttp, outbuf, maxsize);
+            } else for (int i=0; i<StaticListLength; ++i) {
 				if (!strcmp(StaticList[i].key, duHttp.ask.requestedURL)) {
 					DuHttp_Initialize_RESPONSE(&sendDuHttp, 200, "OK");
 					DuHttp_PushHeadline(&sendDuHttp, "Connection", "keep-alive");
@@ -216,7 +230,7 @@ static struct {
 	const char* type;
 } StaticList[] = {{"/", INDEX_HTML, "sdsd"}};*/
 
-static char sendbuf[4096];
+static char sendbuf[8192];
 static void http_server_netconn_serve(struct netconn *conn) {
   struct netbuf *inbuf;
   char *buf;

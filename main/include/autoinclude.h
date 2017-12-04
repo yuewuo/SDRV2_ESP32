@@ -15,6 +15,9 @@
 #include "esp_event_loop.h"
 #include "esp_log.h"
 #include "esp_system.h"
+#include "esp_console.h"
+#include "esp_vfs_dev.h" // vfs? virtual file system?
+#include "esp_vfs_fat.h"
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "soc/gpio_struct.h"
@@ -22,6 +25,7 @@
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
 #include "driver/rmt.h"
+#include "driver/uart.h"
 #include "lwip/err.h"
 #include "lwip/sockets.h"
 #include "lwip/sys.h"
@@ -38,6 +42,7 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/error.h"
 #include "mbedtls/certs.h"
+#include "argtable3/argtable3.h"
 
 // user includes
 

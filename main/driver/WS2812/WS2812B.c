@@ -225,8 +225,6 @@ static void WS2812B_setLeds(wsRGB_t* data, unsigned int size, rmt_item32_t* item
 
 		}
 
-	printf("runto here! rmt_write_items\n");
-
 	rmt_write_items(channel, items, size * 24, false);
 }
 
