@@ -1,4 +1,4 @@
-#include "lib/duhttp.h"
+#include "duhttp.h"
 
 void DuHttp_Initialize(struct DuHttp* d)
 {

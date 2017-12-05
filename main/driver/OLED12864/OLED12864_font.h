@@ -1,5 +1,5 @@
-#ifndef __OLEDFONT_H
-#define __OLEDFONT_H
+#ifndef __OLED12864_FONT_H
+#define __OLED12864_FONT_H
 
 const unsigned char F6x8[][6] =
 {

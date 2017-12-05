@@ -8,7 +8,7 @@
 #define DUHTTP_MAXHEADLINECOUNT 32
 #define DUHTTPRECEIVER_BUFFERSIZE 4096
 #define DUHTTP_DATASIZE (DUHTTPRECEIVER_BUFFERSIZE + 0) //must be positive
-#define DUHTTPSENDER_DATASIZE 1024
+#define DUHTTPSENDER_DATASIZE 8192
 
 // you need to realize these functions below
 void DuHttp_ELOG(const char* str);

@@ -1,5 +1,5 @@
-#include "lib/lib.h"
-#include "lib/oledfont.h"
+#include "autoinclude.h"
+#include "OLED12864_font.h"
 
 static spi_device_handle_t spi;
 

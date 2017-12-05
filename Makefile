@@ -6,3 +6,4 @@
 PROJECT_NAME := SDRV2_ESP32
 
 include $(IDF_PATH)/make/project.mk
+

@@ -1,4 +1,4 @@
-#include "lib.h"
+/*#include "lib.h"
 
 int motor_cnt = 0;
 
@@ -40,5 +40,4 @@ void motor_task(void) {
 		}
 		vTaskDelay(100 / portTICK_PERIOD_MS);
 	}
-}
-
+}*/

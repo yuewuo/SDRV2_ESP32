@@ -1,19 +1,18 @@
-#include "lib/lib.h"
+#include "autoinclude.h"
 
-#include "lib/bmp.h"
+#define WS2812_PIN	18
 
 static char nvs_got_str[1024];
 esp_err_t nvs_quick_get_str(const char* key, const char* default_value) {
 	return nvs_get_str_safe(key, default_value, nvs_got_str, sizeof(nvs_got_str));
 }
 
-void delay_ms(int ms) {
-	vTaskDelay(ms / portTICK_RATE_MS);
-}
+void rainbow(void* pvParameters);
 
 void app() {
+
 	while(1) {
-		vTaskDelay(0);
+		vTaskDelay(1);
 	}
 	//char t;
 	int t;
@@ -62,10 +61,10 @@ void app() {
 	//		LED_OFF;
 		OLED_DrawBMP(0,0,128,8,BMP1);  //ÍŒÆ¬ÏÔÊŸ(ÍŒÆ¬ÏÔÊŸÉ÷ÓÃ£¬Éú³ÉµÄ×Ö±íœÏŽó£¬»áÕŒÓÃœÏ¶à¿ÕŒä£¬FLASH¿ÕŒä8KÒÔÏÂÉ÷ÓÃ)
 		delay_ms(1000);*/
-		OLED_DrawBMP(0,0,128,8,BMP2);
+		/*OLED_DrawBMP(0,0,128,8,BMP2);
 		OLED_Clear();
 		//delay_ms(1000);
 		//ESP_LOGI("app", "OLED off");
-		ESP_LOGI("t", "%d", t++);
+		ESP_LOGI("t", "%d", t++);*/
 	}
 }
