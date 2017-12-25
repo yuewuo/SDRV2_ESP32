@@ -3,6 +3,7 @@
 
 // The system includes
 
+#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -48,6 +49,7 @@
 
 #include "WS2812B.h"
 #include "duhttp.h"
+#include "UARTGrp.h"
 
 //main.c
 static const int CONNECTED_BIT = BIT0;
@@ -70,6 +72,7 @@ extern bool nvs_set_i32_safe(const char* key, int32_t value);
 extern esp_err_t nvs_get_str_safe(const char* key, const char* default_value, char* str, int max_length);
 extern bool nvs_set_str_safe(const char* key, const char* value);
 extern void delay_ms(int ms);
+extern uint8_t htoi2(char *s);
 
 //app.c
 extern void app();

@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include "autoinclude.h"
 
 #define DUHTTP_MAXLINESIZE 512
 #define DUHTTP_MAXHEADLINECOUNT 32
@@ -74,6 +75,8 @@ void DuHttpReceiver_TryResolveHeadLine(const char* str, struct DuHttp* pack);
 int DuHttpReceiver_AvailableSize(struct DuHttpReceiver* r);
 
 int DuHttpSend(struct DuHttp* h, char* buf, int max_size);
+
+char *url_decode(char *str);
 
 #define TRUE 1
 #define FALSE 0

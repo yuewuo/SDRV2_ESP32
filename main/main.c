@@ -29,7 +29,7 @@ void app_main()
     //xTaskCreate(&https_login_PKU_Gateway_task, "https_login_PKU_Gateway_task", 8192, NULL, 5, NULL);
     //xTaskCreate(&call_baidu, "call_baidu", 8192, NULL, 5, NULL);
     ESP_LOGI(TAG, "main creating tasks");
-    xTaskCreate(&httpd_task, "httpd_task", 2048, NULL, 5, NULL);
+    xTaskCreate(&httpd_task, "httpd_task", 16384, NULL, 5, NULL);
 	xTaskCreate(&app_task, "app_task", 8192, NULL, 5, NULL);
 	//xTaskCreate(WS2812B.demo.task, "ws2812host_task", 2048, NULL, 5, NULL);
 	ESP_LOGI(TAG, "main end");

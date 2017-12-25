@@ -6,6 +6,7 @@ static const char TAG[] = "Console";
 
 static void register_functions() {
 	console_register_basic();
+	console_register_nfc();
 	// your register functions here
 }
 static void initialize_filesystem();

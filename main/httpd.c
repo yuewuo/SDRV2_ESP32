@@ -111,7 +111,7 @@ int duHttpHandler(const char* inbuf, int size, char* outbuf, int maxsize) {
             } else if (!memcmp(duHttp.ask.requestedURL, "/exec/", sizeof("/exec/")-1)) {
                 // move to console to execute
                 Shell.Out.clear();
-                Console.exec(duHttp.ask.requestedURL + sizeof("/exec/")-1);
+                Console.exec(url_decode(duHttp.ask.requestedURL + sizeof("/exec/")-1));
                 DuHttp_Initialize_RESPONSE(&sendDuHttp, 200, "OK");
                 DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/plain");
                 DuHttp_EndHeadline(&sendDuHttp);

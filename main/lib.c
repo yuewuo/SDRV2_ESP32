@@ -101,3 +101,20 @@ bool nvs_set_str_safe(const char* key, const char* value) {
 void delay_ms(int ms) {
 	vTaskDelay(ms / portTICK_RATE_MS);
 }
+
+uint8_t htoi2(char *s) {
+    uint8_t value;
+    uint8_t c;
+
+    c = ((unsigned char *)s)[0];
+    if (isupper(c))
+        c = tolower(c);
+    value = (c >= '0' && c <= '9' ? c - '0' : c - 'a' + 10) << 4;
+
+    c = ((unsigned char *)s)[1];
+    if (isupper(c))
+        c = tolower(c);
+    value += c >= '0' && c <= '9' ? c - '0' : c - 'a' + 10;
+
+    return (value);
+}

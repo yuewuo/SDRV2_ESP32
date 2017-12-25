@@ -242,3 +242,27 @@ int DuHttpSend(struct DuHttp* h, char* buf, int max_size)
     buf[now_size] = 0;
     return now_size;
 }
+
+#include <ctype.h>
+
+char *url_decode(char *str)
+{
+    char *dest = str;
+    char *data = str;
+
+    while (*data) {
+        if (*data == '+')
+            *dest = ' ';
+        else if (*data == '%' && data[1] && data[2] && isxdigit((int) *(data + 1)) && isxdigit((int) *(data + 2))) {
+            *dest = (char) htoi2(data + 1);
+            data += 2;
+        }
+        else
+            *dest = *data;
+        data++;
+        dest++;
+    }
+    *dest = '\0';
+    printf("%s\n", str);
+    return str;
+}

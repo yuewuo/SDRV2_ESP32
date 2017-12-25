@@ -7,7 +7,7 @@
 
 #include "autoinclude.h"
 
-struct UART1or2_config_struct {
+struct UARTGrp_config_struct {
 	uint8_t initialzed;
 	uart_port_t uart_num;
 
@@ -24,13 +24,18 @@ struct UART1or2_config_struct {
 
 	int RX_BUF_SIZE;
 };
+typedef struct UARTGrp_config_struct UARTGrp_config_t;
 
-struct UART1or2_Module {
+#define UARTGrpCount 2
+struct UARTGrp_Module {
+	int (*getIndex)(int uart_num);
+	UARTGrp_config_t* (*getConfig)(int uart_num);
 	void (*init)(int uart_num); // 1 or 2, also can be UART_NUM_1 / 2
-	int (*send)(int uart_num, const char* data, uint32_t len);
-	int (*read)(int uart_num, uint8_t* buf, uint32_t bufsize, int timeoutTICK);
+	void (*printInitInfo) (int (*pffunc)(const char*, ...), int uart_num);
+	int (*Send)(int uart_num, const char* data, uint32_t len);
+	int (*Read)(int uart_num, uint8_t* buf, uint32_t bufsize, int timeoutTICK);
 
-	struct UART1or2_config_struct uart1;
-	struct UART1or2_config_struct uart2;
+	UARTGrp_config_t uart1;
+	UARTGrp_config_t uart2;
 };
-extern struct UART1or2_Module UART1or2;
+extern struct UARTGrp_Module UARTGrp;
