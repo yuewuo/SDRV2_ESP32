@@ -1,5 +1,51 @@
+<!doctype html>
 <html>
-	<body>
-		<h1>Hello World!</h1>
-	</body>
+<head>
+<meta charset="utf-8">
+<title>ESP32 Tools</title>
+<style type="text/css">
+#consoleOut {
+	border-color: #442FF5;
+	border-width: thick;
+	background-color: #F9F39D;
+}
+</style>
+<script language="javascript">
+	function esp32execcmd(cmd) {
+		var req;
+		var date = new Date();
+		if (window.XMLHttpRequest) {
+			req = new XMLHttpRequest();
+		} else {
+			req = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		req.open("POST", "exec", async=false); // need to wait for return
+		req.setRequestHeader("ESP32-client", "Broswer");
+		req.setRequestHeader("ESP32-time-sync", "" + date.getFullYear() + " " + (date.getMonth() + 1)
+								+ " " + date.getDate() + " " + date.getHours() + " " + date.getMinutes()
+								+ " " + date.getSeconds() + " " + date.getMilliseconds());
+		req.send(cmd);
+		return req.responseText;
+	}
+	function esp32execconsole() {
+		var espcmd = document.getElementById("consoleIn").innerHTML;
+		var ret = esp32execcmd(espcmd);
+		document.getElementById("consoleOut").innerHTML = ret;
+	}
+</script>
+</head>
+<body>
+<h1><strong>ESP32 builtin Tools</strong></h1>
+<div>
+	<h2>命令行工具</h2>
+	<h3>控制台输入</h3>
+	<textarea id="consoleIn">status</textarea>
+	<br>
+	<button onClick="esp32execconsole()">执行脚本</button>
+	<h3>控制台输出</h3>
+	<div id="consoleOut">此处显示console返回的内容</div>
+</div>
+
+
+</body>
 </html>
