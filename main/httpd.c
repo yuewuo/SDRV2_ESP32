@@ -237,6 +237,7 @@ static void http_server_netconn_serve(struct netconn *conn) {
   u16_t buflen;
   err_t err;
   int sendlen;
+  //printf("here %d\n", __LINE__);
   /* Read the data from the port, blocking if nothing yet there.
    We assume the request (the part we care about) is in one netbuf */
   err = netconn_recv(conn, &inbuf);
