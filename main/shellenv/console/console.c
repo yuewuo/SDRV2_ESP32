@@ -12,7 +12,7 @@ static void register_functions() {
 }
 static void initialize_filesystem();
 static void initialize();
-static int execute(const char* cmd);
+static int execute(char* cmd);
 
 struct Console_Module Console = {
 	.initialzed = 0,
@@ -46,25 +46,37 @@ static void initialize() {
 	Console.initialzed = 1;
 }
 
-static int execute(const char* cmd) {
+static int execute(char* cmd) {
 	if (Console.initialzed == 0) {
 		Console.init();
 	}
 	printf("console received, cmd is %s\n", cmd);
 	int ret;
-    esp_err_t err = esp_console_run(cmd, &ret);
-	if (err == ESP_ERR_NOT_FOUND) {
-		Shell.Out.printf("ESP_ERR_NOT_FOUND \"%s\"\n", cmd);
-		printf("ESP_ERR_NOT_FOUND \"%s\"\n", cmd);
-	} else if (err == ESP_ERR_INVALID_ARG) {
-		Shell.Out.printf("ESP_ERR_INVALID_ARG \"%s\"\n", cmd);
-		printf("ESP_ERR_INVALID_ARG \"%s\"\n", cmd);
-	} else if (err == ESP_OK && ret != ESP_OK) {
-		Shell.Out.printf("Command returned non-zero error code: 0x%x\n", ret);
-		printf("Command returned non-zero error code: 0x%x\n", ret);
-	} else if (err != ESP_OK) {
-		Shell.Out.printf("Internal error: 0x%x\n", err);
-		printf("Internal error: 0x%x\n", err);
+	int nextcontinue = true;
+	char* head = cmd;
+	while (nextcontinue) {
+		while (*cmd && *cmd != '\n') ++cmd;
+		if (*cmd == '\0') nextcontinue = false; // hit the end
+		*cmd = 0;
+		++cmd;
+		if (cmd != head) {
+			printf("run one cmd: %s\n", head);
+			esp_err_t err = esp_console_run(head, &ret);
+			if (err == ESP_ERR_NOT_FOUND) {
+				Shell.Out.printf("ESP_ERR_NOT_FOUND \"%s\"\n", cmd);
+				printf("ESP_ERR_NOT_FOUND \"%s\"\n", cmd);
+			} else if (err == ESP_ERR_INVALID_ARG) {
+				Shell.Out.printf("ESP_ERR_INVALID_ARG \"%s\"\n", cmd);
+				printf("ESP_ERR_INVALID_ARG \"%s\"\n", cmd);
+			} else if (err == ESP_OK && ret != ESP_OK) {
+				Shell.Out.printf("Command returned non-zero error code: 0x%x\n", ret);
+				printf("Command returned non-zero error code: 0x%x\n", ret);
+			} else if (err != ESP_OK) {
+				Shell.Out.printf("Internal error: 0x%x\n", err);
+				printf("Internal error: 0x%x\n", err);
+			}
+		}
+		head = cmd;
 	}
 	return 0;
 }

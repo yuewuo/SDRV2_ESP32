@@ -28,7 +28,7 @@
 		return req.responseText;
 	}
 	function esp32execconsole() {
-		var espcmd = document.getElementById("consoleIn").innerHTML;
+		var espcmd = document.getElementById("consoleIn").value;
 		var ret = esp32execcmd(espcmd);
 		document.getElementById("consoleOut").innerHTML = ret;
 	}

@@ -99,12 +99,12 @@ int duHttpHandler(const char* inbuf, int size, char* outbuf, int maxsize) {
 			break;
 		case DuHttp_Type_POST:
 			printf("Pack Type is: DuHttp_Type_POST\n");
-			printf("Outputing Key-Value List: cnt=%d\n", duHttp.headlineCount);
+			/*printf("Outputing Key-Value List: cnt=%d\n", duHttp.headlineCount);
 			for (int i=0; i<duHttp.headlineCount; ++i) {
 				printf("Key: %s\n", duHttp.headline[i].key);
 				printf("Value: %s\n", duHttp.headline[i].value);
-			}
-            if (!memcmp(duHttp.ask.requestedURL, "/exec/", sizeof("/exec/")-1)) {
+			}*/
+            if (!memcmp(duHttp.ask.requestedURL, "/exec", sizeof("/exec")-1)) {
                 // move to console to execute
                 Shell.Out.clear();
                 duHttp.content[duHttp.contentLength] = 0;
