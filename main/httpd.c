@@ -2,6 +2,8 @@
 #include "shellutil.h"
 #include "console/console.h"
 
+// TODO: 改成接收多次的模式，不然收大量数据的时候一定会出错！！！
+
 #define HOSTNAME CONFIG_HOSTNAME
 
 static struct DuHttpReceiver duHttpReceiver;
@@ -39,62 +41,29 @@ const static int StaticListLength = (sizeof(StaticList) / sizeof(struct StaticLi
 #define UTILBIAS sizeof("/util/")-1
 #define UTILTAG "UTIL"
 int duHttpUtilHandler(struct DuHttp* inPack, struct DuHttp* outPack) {
-    int r, g, b;
-    const char *tmpstr;
-  if (!strcmp((inPack->ask.requestedURL) + UTILBIAS, "turnOnLight")) {
-    DuHttp_Initialize_RESPONSE(outPack, 200, "OK");
-    DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
-    DuHttp_EndHeadline(outPack);
-    DuHttp_PushDataString(outPack, "turn on finished");
-    ESP_LOGI(UTILTAG, "LED turned on");
-    gpio_set_level(BLINK_GPIO, 1);
-    return 1;
-  }
-  if (!strcmp((inPack->ask.requestedURL) + UTILBIAS, "turnOffLight")) {
-    DuHttp_Initialize_RESPONSE(outPack, 200, "OK");
-    DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
-    DuHttp_EndHeadline(outPack);
-    DuHttp_PushDataString(outPack, "turn off finished");
-    ESP_LOGI(UTILTAG, "LED turned off");
-    gpio_set_level(BLINK_GPIO, 0);
-    return 1;
-  }
-  if (!strcmp((inPack->ask.requestedURL) + UTILBIAS, "status")) {
-    DuHttp_Initialize_RESPONSE(outPack, 200, "OK");
-    DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
-    DuHttp_PushHeadline(&sendDuHttp,"Access-Control-Allow-Origin", "*");
-    DuHttp_EndHeadline(outPack);
-    DuHttp_PushDataString(outPack, "ESP32 1.0.0");
-    ESP_LOGI(UTILTAG, "Ask for Status");
-    return 1;
-  }
-  /*if (!memcmp((inPack->ask.requestedURL) + UTILBIAS, "WS2812ALL=", strlen("WS2812ALL="))) {
-      DuHttp_Initialize_RESPONSE(outPack, 200, "OK");
-      DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
-      DuHttp_EndHeadline(outPack);
-      tmpstr = (inPack->ask.requestedURL) + UTILBIAS + strlen("WS2812ALL=");
-      DuHttp_PushDataString(outPack, tmpstr);
-      sscanf(tmpstr, "%d,%d,%d", &r, &g, &b);
-      ESP_LOGI(UTILTAG, "WS2812ALL=%d,%d,%d", r, g, b);
-      ws2812host_state.cmd.type = WS2812CMDTYPE_ALLCHANGE;
-      ws2812host_state.cmd.r = r & 0x0FF;
-      ws2812host_state.cmd.g = g & 0x0FF;
-      ws2812host_state.cmd.b = b & 0x0FF;
-      return 1;
-  }*/
-  return 0;
+    if (!strcmp((inPack->ask.requestedURL) + UTILBIAS, "status")) {
+        DuHttp_Initialize_RESPONSE(outPack, 200, "OK");
+        DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
+        DuHttp_PushHeadline(&sendDuHttp,"Access-Control-Allow-Origin", "*");
+        DuHttp_EndHeadline(outPack);
+        DuHttp_PushDataString(outPack, "ESP32 1.0.0");
+        ESP_LOGI(UTILTAG, "Ask for Status");
+        return 1;
+    }
+    return 0;
 }
 void duHttpInit() {
-    //ws2812host_state.LEDCount = 16;
-  gpio_pad_select_gpio(BLINK_GPIO);
-  gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+    // do some things here
 }
 
-int duHttpHandler(const char* inbuf, int size, char* outbuf, int maxsize) {
-	int returnSize = 0;
+int duHttpHandler(const char* inbuf, int size, char* alloutbuf, int allmaxsize) {
+	int allreturnSize = 0;
 	DuHttpReceiver_InBuf(&duHttpReceiver, inbuf, size);
 	//printf("    Queue Available Size: %d\n",  DuHttpReceiver_AvailableSize(&duHttpReceiver));
 	while (DuHttpReceiver_TryReadPack(&duHttpReceiver, &duHttp)) {
+        int returnSize = 0;
+        char* outbuf = alloutbuf + allreturnSize;
+        int maxsize = allmaxsize - allreturnSize;
 		printf("Got one Pack!\n");
 		switch(duHttp.type) {
 		case DuHttp_Type_UNKNOWN:
@@ -111,8 +80,9 @@ int duHttpHandler(const char* inbuf, int size, char* outbuf, int maxsize) {
             } else if (!memcmp(duHttp.ask.requestedURL, "/exec/", sizeof("/exec/")-1)) {
                 // move to console to execute
                 Shell.Out.clear();
-                Console.exec(duHttp.ask.requestedURL + sizeof("/exec/")-1);
+                Console.exec(url_decode(duHttp.ask.requestedURL + sizeof("/exec/")-1));
                 DuHttp_Initialize_RESPONSE(&sendDuHttp, 200, "OK");
+                DuHttp_PushHeadline(&sendDuHttp, "Connection", "keep-alive");
                 DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/plain");
                 DuHttp_EndHeadline(&sendDuHttp);
                 DuHttp_PushData(&sendDuHttp, Shell.Out.buffer(), Shell.Out.length());
@@ -128,47 +98,59 @@ int duHttpHandler(const char* inbuf, int size, char* outbuf, int maxsize) {
 					break;
 				}
 			}
-			if (returnSize) break;
-			else {
-				//return 404 Page
-				DuHttp_Initialize_RESPONSE(&sendDuHttp, 404, "Not Found");
-				DuHttp_PushHeadline(&sendDuHttp, "Connection", "keep-alive");
-				DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
-				DuHttp_EndHeadline(&sendDuHttp);
-				sendDuHttp.contentLength += sprintf((sendDuHttp.content) + (sendDuHttp.contentLength), ERR_404_HTML, duHttp.ask.requestedURL, HOSTNAME); //DuHttp_PushData manually
-				returnSize = DuHttpSend(&sendDuHttp, outbuf, maxsize);
-			}
 			//do other things
 			break;
 		case DuHttp_Type_POST:
 			printf("Pack Type is: DuHttp_Type_POST\n");
-			printf("Outputing Key-Value List: cnt=%d\n", duHttp.headlineCount);
+			/*printf("Outputing Key-Value List: cnt=%d\n", duHttp.headlineCount);
 			for (int i=0; i<duHttp.headlineCount; ++i) {
 				printf("Key: %s\n", duHttp.headline[i].key);
 				printf("Value: %s\n", duHttp.headline[i].value);
-			}
+			}*/
+            if (!memcmp(duHttp.ask.requestedURL, "/exec", sizeof("/exec")-1)) {
+                // move to console to execute
+                Shell.Out.clear();
+                duHttp.content[duHttp.contentLength] = 0;
+                Console.exec(duHttp.content);
+                DuHttp_Initialize_RESPONSE(&sendDuHttp, 200, "OK");
+                DuHttp_PushHeadline(&sendDuHttp, "Connection", "keep-alive");
+                DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/plain");
+                DuHttp_EndHeadline(&sendDuHttp);
+                DuHttp_PushData(&sendDuHttp, Shell.Out.buffer(), Shell.Out.length());
+                returnSize = DuHttpSend(&sendDuHttp, outbuf, maxsize);
+            }
 			/*va = DuHttp_FindValueByKey(&duHttp, "Tst2");
 			if (va) {
 				cout << "Find: " << va << endl;
 			} else cout << "Not Found" << endl;*/
-			duHttp.content[duHttp.contentLength] = 0;
+			//duHttp.content[duHttp.contentLength] = 0;
 			printf("content: %s\n", duHttp.content);
 			printf("requestedURL: %s\n", duHttp.ask.requestedURL);
 			//DuHttp_Initialize_POST(&sendDuHttp, "/");
-			DuHttp_Initialize_RESPONSE(&sendDuHttp, 200, "OK");
+			/*DuHttp_Initialize_RESPONSE(&sendDuHttp, 200, "OK");
 			DuHttp_PushHeadline(&sendDuHttp, "Connection", "keep-alive");
 			DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
 			DuHttp_EndHeadline(&sendDuHttp);
 			DuHttp_PushData(&sendDuHttp, "Hello World! Wahaha", sizeof("Hello World! Wahaha")-1);
-			returnSize = DuHttpSend(&sendDuHttp, outbuf, maxsize);
+			returnSize = DuHttpSend(&sendDuHttp, outbuf, maxsize);*/
 			break;
 		case DuHttp_Type_RESPONSE_HTTP1X:
 			break;
 		}
+        if (returnSize == 0) {
+            //return 404 Page
+            DuHttp_Initialize_RESPONSE(&sendDuHttp, 404, "Not Found");
+            DuHttp_PushHeadline(&sendDuHttp, "Connection", "keep-alive");
+            DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
+            DuHttp_EndHeadline(&sendDuHttp);
+            sendDuHttp.contentLength += sprintf((sendDuHttp.content) + (sendDuHttp.contentLength), ERR_404_HTML, duHttp.ask.requestedURL, HOSTNAME); //DuHttp_PushData manually
+            returnSize = DuHttpSend(&sendDuHttp, outbuf, maxsize);
+        }
+        allreturnSize += returnSize;
+        DuHttp_Release(&duHttp);
 	}
-	DuHttp_Release(&duHttp);
 	//printf("    Queue Available Size: %d\n",  DuHttpReceiver_AvailableSize(&duHttpReceiver));
-	return returnSize;
+	return allreturnSize;
 }
 
 
@@ -207,29 +189,6 @@ int duHttpHandler(const char* inbuf, int size, char* outbuf, int maxsize) {
 const static char http_html_hdr[]  =
       "HTTP/1.1 200 OK\r\nContent-type: text/html\r\n\r\n";
 
-/*const static char INDEXHTML[] = "<!DOCTYPE html>"
-      "<html>\n"
-      "<head>\n"
-      "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
-      "  <style type=\"text/css\">\n"
-      "    html, body, iframe { margin: 0; padding: 0; height: 100%; }\n"
-      "    iframe { display: block; width: 100%; border: none; }\n"
-      "  </style>\n"
-      "<title>Hello world!</title>\n"
-      "</head>\n"
-      "<body>\n"
-      "<h1>Hello world!!!</h1>\n"
-      "</body>\n"
-      "</html>\n";*/
-
-/*extern const char INDEX_HTML[] asm("_binary_index_html_start");
-
-static struct {
-	const char* key;
-	const char* value;
-	const char* type;
-} StaticList[] = {{"/", INDEX_HTML, "sdsd"}};*/
-
 static char sendbuf[8192];
 static void http_server_netconn_serve(struct netconn *conn) {
   struct netbuf *inbuf;
@@ -237,41 +196,15 @@ static void http_server_netconn_serve(struct netconn *conn) {
   u16_t buflen;
   err_t err;
   int sendlen;
+  //printf("here %d\n", __LINE__);
   /* Read the data from the port, blocking if nothing yet there.
    We assume the request (the part we care about) is in one netbuf */
+   // TODO: 改成接收多次的模式，不然收大量数据的时候一定会出错！！！
   err = netconn_recv(conn, &inbuf);
   if (err == ERR_OK) {
     netbuf_data(inbuf, (void**)&buf, &buflen);
     sendlen = duHttpHandler(buf, buflen, sendbuf, sizeof(sendbuf));
     netconn_write(conn, sendbuf, sendlen, NETCONN_NOCOPY);
-
-    /*DuHttpReceiver_InBuf(&duHttpReceiver, buf, buflen);
-    ESP_LOGI("DuHTTP", "buflen = %d, %d, %d", buflen, duHttpReceiver.queue_write, duHttpReceiver.queue_read);
-    ESP_LOGI("DuHTTP", "available size: %d", DuHttpReceiver_AvailableSize(&duHttpReceiver));
-    while (DuHttpReceiver_TryReadPack(&duHttpReceiver, &duHttp)) {
-      ESP_LOGI("DuHTTP", "Got Pack!");
-    }*/
-
-    /* Is this an HTTP GET command?
-    there are other formats for GET, and we're keeping it very simple )*/
-    //buf[buflen] = 0;
-    //printf("%s \n", buf);
-    //printf("char is:%c\n", buf[9]);
-    //wuyue motor!!!
-    /*if(buf[9] == 'z') {
-    	motor_cnt += 5;
-    }
-    if(buf[9] == 'f') {
-    	motor_cnt -= 5;
-    }*/
-
-     /* Send the HTML header
-             * subtract 1 from the size, since we dont send the \0 in the string
-             * NETCONN_NOCOPY: our data is const static, so no need to copy it
-     */
-     /////////netconn_write(conn, http_html_hdr, sizeof(http_html_hdr)-1, NETCONN_NOCOPY);
-     /* Send our HTML page */
-     /////////netconn_write(conn, INDEXHTML, sizeof(INDEXHTML)-1, NETCONN_NOCOPY);
   }
   /* Close the connection (server closes in HTTP) */
   netconn_close(conn);

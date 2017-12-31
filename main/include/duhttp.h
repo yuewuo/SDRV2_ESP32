@@ -1,8 +1,19 @@
+/*
+ * Duplex HTTP library
+ * author: wy
+ * last-modified: 20171230
+ * version: 0.1
+ */
+
 #ifndef DUHTTPUTIL_H
 #define DUHTTPUTIL_H
 
 #include <string.h>
 #include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define DUHTTP_MAXLINESIZE 512
 #define DUHTTP_MAXHEADLINECOUNT 32
@@ -75,7 +86,16 @@ int DuHttpReceiver_AvailableSize(struct DuHttpReceiver* r);
 
 int DuHttpSend(struct DuHttp* h, char* buf, int max_size);
 
+char *url_decode(char *str);
+
 #define TRUE 1
 #define FALSE 0
+
+typedef unsigned char uint8_t;
+extern uint8_t htoi2(char *s);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // DUHTTPUTIL_H

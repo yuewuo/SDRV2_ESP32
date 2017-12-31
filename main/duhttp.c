@@ -1,3 +1,10 @@
+/*
+ * Duplex HTTP library
+ * author: wy
+ * last-modified: 20171230
+ * version: 0.1
+ */
+
 #include "duhttp.h"
 
 void DuHttp_Initialize(struct DuHttp* d)
@@ -241,4 +248,45 @@ int DuHttpSend(struct DuHttp* h, char* buf, int max_size)
     now_size += (h->contentLength);
     buf[now_size] = 0;
     return now_size;
+}
+
+#include <ctype.h>
+
+char *url_decode(char *str)
+{
+    char *dest = str;
+    char *data = str;
+
+    while (*data) {
+        if (*data == '+')
+            *dest = ' ';
+        else if (*data == '%' && data[1] && data[2] && isxdigit((int) *(data + 1)) && isxdigit((int) *(data + 2))) {
+            *dest = (char) htoi2(data + 1);
+            data += 2;
+        }
+        else
+            *dest = *data;
+        data++;
+        dest++;
+    }
+    *dest = '\0';
+    printf("%s\n", str);
+    return str;
+}
+
+uint8_t htoi2(char *s) {
+    uint8_t value;
+    uint8_t c;
+
+    c = ((unsigned char *)s)[0];
+    if (isupper(c))
+        c = tolower(c);
+    value = (c >= '0' && c <= '9' ? c - '0' : c - 'a' + 10) << 4;
+
+    c = ((unsigned char *)s)[1];
+    if (isupper(c))
+        c = tolower(c);
+    value += c >= '0' && c <= '9' ? c - '0' : c - 'a' + 10;
+
+    return (value);
 }

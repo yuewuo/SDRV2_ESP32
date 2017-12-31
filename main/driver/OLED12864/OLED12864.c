@@ -163,7 +163,7 @@ void OLED_ShowString(uint8_t x, uint8_t y, char *chr)
 void OLED_DrawBMP(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, unsigned char BMP[])
 {
  unsigned int j=0;
- unsigned char x,y;
+ unsigned char y;
 
   if(y1%8==0) y=y1/8;
   else y=y1/8+1;

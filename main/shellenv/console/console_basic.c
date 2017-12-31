@@ -20,6 +20,6 @@ static void register_tasks() {
 
 static int tasks(int argc, char** argv) {
 	printf("GG I'm tasks!!!\n");
-	Shell.Out.printf("Hello~~~\n");
+	Shell.Out.printf("Hello~~~\r\n");
 	return 0;
 }
