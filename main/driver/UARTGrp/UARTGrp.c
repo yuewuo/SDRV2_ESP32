@@ -60,7 +60,7 @@ static int getIndex(int uart_num) {
 
 #define OPT_MUSTNOTINITIALIZED 0x01
 static UARTGrp_config_t* getConfigWithOpts(int uart_num, uint8_t opt) {
-	struct UARTGrp_config_struct* configp;
+	UARTGrp_config_t* configp;
 	if (uart_num == 1) {
 		configp = &(UARTGrp.uart1);
 	} else if (uart_num == 2) {
@@ -109,23 +109,12 @@ static void initialize(int uart_num) {
 static int UARTGrp_send(int uart_num, const char* data, uint32_t len) {
 	UARTGrp_config_t* configp = getConfigWithOpts(uart_num, 0);
 	if (configp == NULL) return -1;
-	//ESP_LOGI(TAG, "Need to write %d bytes", len);
-	/*int txBytes = 0;
-	while (txBytes < len) {
-		txBytes += uart_write_bytes(configp->uart_num, data+txBytes, len-txBytes);
-	}*/
-	//ESP_LOGI(TAG, "Wrote %d bytes", txBytes);
-	//ESP_LOG_BUFFER_HEXDUMP(TAG, data, len, ESP_LOG_INFO);
 	return uart_write_bytes(configp->uart_num, data, len);// txBytes;
 }
 
 static int UARTGrp_read(int uart_num, uint8_t* buf, uint32_t bufsize, int timeoutTICK) {
 	UARTGrp_config_t* configp = getConfigWithOpts(uart_num, 0);
 	if (configp == NULL) return -1;
-	//ESP_LOGI(TAG, "Need to read %d bytes", bufsize);
 	const int rxBytes = uart_read_bytes(configp->uart_num, buf, bufsize, timeoutTICK);
-	//ESP_LOGI(TAG, "Read %d bytes: '%s'", bufsize, buf);
-	//ESP_LOGI(TAG, "Read %d bytes", rxBytes);
-    //ESP_LOG_BUFFER_HEXDUMP(TAG, buf, bufsize, ESP_LOG_INFO);
 	return rxBytes;
 }

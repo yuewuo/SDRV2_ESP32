@@ -7,7 +7,7 @@
 
 #include "autoinclude.h"
 
-struct UARTGrp_config_struct {
+typedef struct {
 	uint8_t initialzed;
 	uart_port_t uart_num;
 
@@ -23,8 +23,7 @@ struct UARTGrp_config_struct {
 		//uart_hw_flowcontrol_t flow_ctrl;
 
 	int RX_BUF_SIZE;
-};
-typedef struct UARTGrp_config_struct UARTGrp_config_t;
+} UARTGrp_config_t;
 
 #define UARTGrpCount 2
 struct UARTGrp_Module {

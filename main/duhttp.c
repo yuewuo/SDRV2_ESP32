@@ -1,3 +1,10 @@
+/*
+ * Duplex HTTP library
+ * author: wy
+ * last-modified: 20171230
+ * version: 0.1
+ */
+
 #include "duhttp.h"
 
 void DuHttp_Initialize(struct DuHttp* d)
@@ -265,4 +272,21 @@ char *url_decode(char *str)
     *dest = '\0';
     printf("%s\n", str);
     return str;
+}
+
+uint8_t htoi2(char *s) {
+    uint8_t value;
+    uint8_t c;
+
+    c = ((unsigned char *)s)[0];
+    if (isupper(c))
+        c = tolower(c);
+    value = (c >= '0' && c <= '9' ? c - '0' : c - 'a' + 10) << 4;
+
+    c = ((unsigned char *)s)[1];
+    if (isupper(c))
+        c = tolower(c);
+    value += c >= '0' && c <= '9' ? c - '0' : c - 'a' + 10;
+
+    return (value);
 }

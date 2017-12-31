@@ -19,7 +19,7 @@ void console_register_ws2812() {
 static int ws2812_console(int argc, char** argv) {
     if (argc == 1) { // return current state
         char str[1024];
-        int n = WS2812_daemon_Print(str, sizeof(str));
+        /*int n = */WS2812_daemon_Print(str, sizeof(str));
         Shell.Out.printf(str);
         return 0;
     }
@@ -63,7 +63,7 @@ static int ws2812_console(int argc, char** argv) {
                 color.g = 255;
                 color.b = 0;
             } else if (argv[i][0] == '(') {
-                char* s = argv[i] + 1;
+                //char* s = argv[i] + 1;
                 //while (*s && *s != ',') ++s;
                 Shell.Out.printf("-c (r,g,b) has not been realized yet\n");
                 return -1;

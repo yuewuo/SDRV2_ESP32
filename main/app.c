@@ -15,7 +15,7 @@ void app() {
 		vTaskDelay(1);
 	}
 	//char t;
-	int t;
+	//int t;
 	/*while (1) {
 		printf("get:%d\n", nvs_get_i32_safe("tmp", 4));
 		fflush(stdout);
@@ -31,7 +31,7 @@ void app() {
 	ESP_LOGI("app", "app start");
 	OLED_Init();
 	OLED_Clear();
-	t=' ';
+	//t=' ';
 	while(1)
 	{
 		/*ESP_LOGI("app", "OLED start");

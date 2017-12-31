@@ -2,6 +2,8 @@
 #include "shellutil.h"
 #include "console/console.h"
 
+// TODO: 改成接收多次的模式，不然收大量数据的时候一定会出错！！！
+
 #define HOSTNAME CONFIG_HOSTNAME
 
 static struct DuHttpReceiver duHttpReceiver;
@@ -39,8 +41,6 @@ const static int StaticListLength = (sizeof(StaticList) / sizeof(struct StaticLi
 #define UTILBIAS sizeof("/util/")-1
 #define UTILTAG "UTIL"
 int duHttpUtilHandler(struct DuHttp* inPack, struct DuHttp* outPack) {
-    int r, g, b;
-    const char *tmpstr;
     if (!strcmp((inPack->ask.requestedURL) + UTILBIAS, "status")) {
         DuHttp_Initialize_RESPONSE(outPack, 200, "OK");
         DuHttp_PushHeadline(&sendDuHttp,"Content-Type", "text/html");
@@ -56,11 +56,14 @@ void duHttpInit() {
     // do some things here
 }
 
-int duHttpHandler(const char* inbuf, int size, char* outbuf, int maxsize) {
-	int returnSize = 0;
+int duHttpHandler(const char* inbuf, int size, char* alloutbuf, int allmaxsize) {
+	int allreturnSize = 0;
 	DuHttpReceiver_InBuf(&duHttpReceiver, inbuf, size);
 	//printf("    Queue Available Size: %d\n",  DuHttpReceiver_AvailableSize(&duHttpReceiver));
 	while (DuHttpReceiver_TryReadPack(&duHttpReceiver, &duHttp)) {
+        int returnSize = 0;
+        char* outbuf = alloutbuf + allreturnSize;
+        int maxsize = allmaxsize - allreturnSize;
 		printf("Got one Pack!\n");
 		switch(duHttp.type) {
 		case DuHttp_Type_UNKNOWN:
@@ -143,10 +146,11 @@ int duHttpHandler(const char* inbuf, int size, char* outbuf, int maxsize) {
             sendDuHttp.contentLength += sprintf((sendDuHttp.content) + (sendDuHttp.contentLength), ERR_404_HTML, duHttp.ask.requestedURL, HOSTNAME); //DuHttp_PushData manually
             returnSize = DuHttpSend(&sendDuHttp, outbuf, maxsize);
         }
+        allreturnSize += returnSize;
+        DuHttp_Release(&duHttp);
 	}
-	DuHttp_Release(&duHttp);
 	//printf("    Queue Available Size: %d\n",  DuHttpReceiver_AvailableSize(&duHttpReceiver));
-	return returnSize;
+	return allreturnSize;
 }
 
 
@@ -195,6 +199,7 @@ static void http_server_netconn_serve(struct netconn *conn) {
   //printf("here %d\n", __LINE__);
   /* Read the data from the port, blocking if nothing yet there.
    We assume the request (the part we care about) is in one netbuf */
+   // TODO: 改成接收多次的模式，不然收大量数据的时候一定会出错！！！
   err = netconn_recv(conn, &inbuf);
   if (err == ERR_OK) {
     netbuf_data(inbuf, (void**)&buf, &buflen);
