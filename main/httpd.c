@@ -13,6 +13,8 @@ void DuHttp_ELOG(const char* str) {
   printf("DuHTTP Error: %s\n", str);
 }
 
+static const char TAG[] = "httpd";
+
 extern const char INDEX_HTML[] asm("_binary_index_html_start");
 extern const char INDEX_HTML_END[] asm("_binary_index_html_end");
 extern const char TEST_HTML[] asm("_binary_test_html_start");
@@ -56,16 +58,26 @@ void duHttpInit() {
     // do some things here
 }
 
-int duHttpHandler(const char* inbuf, int size, char* alloutbuf, int allmaxsize) {
-	int allreturnSize = 0;
-	DuHttpReceiver_InBuf(&duHttpReceiver, inbuf, size);
+//int duHttpHandler(const char* inbuf, int size, char* outbuf, int maxsize) {
+int duHttpHandler(char* outbuf, int maxsize) {
+    int returnSize = -1;
+	//DuHttpReceiver_InBuf(&duHttpReceiver, inbuf, size);
 	//printf("    Queue Available Size: %d\n",  DuHttpReceiver_AvailableSize(&duHttpReceiver));
-	while (DuHttpReceiver_TryReadPack(&duHttpReceiver, &duHttp)) {
-        int returnSize = 0;
-        char* outbuf = alloutbuf + allreturnSize;
-        int maxsize = allmaxsize - allreturnSize;
+	//while (DuHttpReceiver_TryReadPack(&duHttpReceiver, &duHttp)) {
+    if (DuHttpReceiver_TryReadPack(&duHttpReceiver, &duHttp)) {
 		printf("Got one Pack!\n");
-		switch(duHttp.type) {
+        char* proxyTo = DuHttp_FindValueByKey(&duHttp, "ESPProxyTo");
+        if ((duHttp.type == DuHttp_Type_GET || duHttp.type == DuHttp_Type_POST)
+                && proxyTo != NULL) {
+            // do proxy
+            if (0 == strcmp(proxyTo, "UART1")) {
+                UARTGrpProxy.doProxy(1, &duHttp, 1000 / portTICK_RATE_MS,
+                    outbuf, maxsize, &returnSize);
+            } else if (0 == strcmp(proxyTo, "UART2")) {
+                UARTGrpProxy.doProxy(2, &duHttp, 1000 / portTICK_RATE_MS,
+                    outbuf, maxsize, &returnSize);
+            }
+        } else switch(duHttp.type) {
 		case DuHttp_Type_UNKNOWN:
 			printf("Pack Type is: DuHttp_Type_UNKNOWN\n");
 			break;
@@ -123,7 +135,7 @@ int duHttpHandler(const char* inbuf, int size, char* alloutbuf, int allmaxsize) 
 			if (va) {
 				cout << "Find: " << va << endl;
 			} else cout << "Not Found" << endl;*/
-			//duHttp.content[duHttp.contentLength] = 0;
+			duHttp.content[duHttp.contentLength] = 0;
 			printf("content: %s\n", duHttp.content);
 			printf("requestedURL: %s\n", duHttp.ask.requestedURL);
 			//DuHttp_Initialize_POST(&sendDuHttp, "/");
@@ -146,11 +158,10 @@ int duHttpHandler(const char* inbuf, int size, char* alloutbuf, int allmaxsize) 
             sendDuHttp.contentLength += sprintf((sendDuHttp.content) + (sendDuHttp.contentLength), ERR_404_HTML, duHttp.ask.requestedURL, HOSTNAME); //DuHttp_PushData manually
             returnSize = DuHttpSend(&sendDuHttp, outbuf, maxsize);
         }
-        allreturnSize += returnSize;
         DuHttp_Release(&duHttp);
 	}
 	//printf("    Queue Available Size: %d\n",  DuHttpReceiver_AvailableSize(&duHttpReceiver));
-	return allreturnSize;
+	return returnSize;
 }
 
 
@@ -191,26 +202,36 @@ const static char http_html_hdr[]  =
 
 static char sendbuf[8192];
 static void http_server_netconn_serve(struct netconn *conn) {
-  struct netbuf *inbuf;
-  char *buf;
-  u16_t buflen;
-  err_t err;
-  int sendlen;
-  //printf("here %d\n", __LINE__);
-  /* Read the data from the port, blocking if nothing yet there.
-   We assume the request (the part we care about) is in one netbuf */
-   // TODO: 改成接收多次的模式，不然收大量数据的时候一定会出错！！！
-  err = netconn_recv(conn, &inbuf);
-  if (err == ERR_OK) {
-    netbuf_data(inbuf, (void**)&buf, &buflen);
-    sendlen = duHttpHandler(buf, buflen, sendbuf, sizeof(sendbuf));
-    netconn_write(conn, sendbuf, sendlen, NETCONN_NOCOPY);
-  }
-  /* Close the connection (server closes in HTTP) */
-  netconn_close(conn);
-  /* Delete the buffer (netconn_recv gives us ownership,
-   so we have to make sure to deallocate the buffer) */
-  netbuf_delete(inbuf);
+    struct netbuf *inbuf;
+    char *buf;
+    u16_t buflen;
+    //err_t err;
+    int sendlen;
+    printf("here %d\n", __LINE__);
+    /* Read the data from the port, blocking if nothing yet there.
+    We assume the request (the part we care about) is in one netbuf */
+    // TODOed: 改成接收多次的模式，不然收大量数据的时候一定会出错！！！
+    ESP_LOGI(TAG, "Long Connection Start");
+    while (netconn_recv(conn, &inbuf) == ERR_OK) {
+        netbuf_data(inbuf, (void**)&buf, &buflen);
+        DuHttpReceiver_InBuf(&duHttpReceiver, buf, buflen);
+        while ((sendlen = duHttpHandler(sendbuf, sizeof(sendbuf))) != -1) {
+            ESP_LOGI(TAG, "Long Connection Handle one");
+            netconn_write(conn, sendbuf, sendlen, NETCONN_NOCOPY);
+        }
+    }
+    ESP_LOGE(TAG, "Long Connection Break");
+    /*err = netconn_recv(conn, &inbuf);
+    if (err == ERR_OK) {
+        netbuf_data(inbuf, (void**)&buf, &buflen);
+        sendlen = duHttpHandler(buf, buflen, sendbuf, sizeof(sendbuf));
+        netconn_write(conn, sendbuf, sendlen, NETCONN_NOCOPY);
+    }*/
+    /* Close the connection (server closes in HTTP) */
+    netconn_close(conn);
+    /* Delete the buffer (netconn_recv gives us ownership,
+    so we have to make sure to deallocate the buffer) */
+    netbuf_delete(inbuf);
 }
 
 void httpd(){

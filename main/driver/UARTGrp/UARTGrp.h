@@ -6,6 +6,7 @@
  */
 
 #include "autoinclude.h"
+#include "duhttp.h"
 
 typedef struct {
 	uint8_t initialzed;
@@ -38,3 +39,10 @@ struct UARTGrp_Module {
 	UARTGrp_config_t uart2;
 };
 extern struct UARTGrp_Module UARTGrp;
+
+struct UARTGrp_Proxy_t {
+	int (*init)(int uart_num);
+	int (*doProxy)(int uart_num, struct DuHttp* ori, int timeoutTICK, char* sendbuf
+				, int sendbuflen, int* returnSize);
+};
+extern struct UARTGrp_Proxy_t UARTGrpProxy;
