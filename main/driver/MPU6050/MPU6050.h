@@ -1,0 +1,1 @@
+extern void MPU6050_daemon_task(void *pvParameters);

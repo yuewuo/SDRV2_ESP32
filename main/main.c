@@ -1,7 +1,9 @@
 #include "autoinclude.h"
 #include "WS2812B_daemon.h"
+#include "AD8232_daemon.h"
 #include "console/console.h"
 #include "shellutil.h"
+#include "MPU6050.h"
 
 EventGroupHandle_t wifi_event_group;
 
@@ -26,6 +28,7 @@ static void httpd_task (void *pvParameters) {
 void app_main()
 {
 	ESP_LOGI(TAG, "main start");
+	delay_ms(1000);  // 开机等待，可以亮灯提示用户重启
     nvs_init();
     initialise_wifi();
 	duHttpInit();
@@ -38,8 +41,10 @@ void app_main()
 	printf("%s\n", Shell.Out.buffer());
 	ESP_LOGI(TAG, "end printing results:");
     xTaskCreate(&httpd_task, "httpd_task", 16384, NULL, 5, NULL);
-	xTaskCreate(&app_task, "app_task", 8192, NULL, 5, NULL);
+	//xTaskCreate(&app_task, "app_task", 8192, NULL, 5, NULL);
+	//xTaskCreate(&AD8232_daemon_task, "AD8232_task", 8192, NULL, 5, NULL);
 	//xTaskCreate(WS2812B.demo.task, "ws2812host_task", 2048, NULL, 5, NULL);
 	//xTaskCreate(&WS2812_daemon_task, "WS2812_daemon_task", 8192, NULL, 5, NULL);
+	xTaskCreate(&MPU6050_daemon_task, "MPU6050_daemon_task", 8192, NULL, 5, NULL);
 	ESP_LOGI(TAG, "main end");
 }
