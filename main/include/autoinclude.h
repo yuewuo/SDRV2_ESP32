@@ -19,6 +19,7 @@
 #include "esp_console.h"
 #include "esp_vfs_dev.h" // vfs? virtual file system?
 #include "esp_vfs_fat.h"
+#include "esp_adc_cal.h"
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "soc/gpio_struct.h"
@@ -27,6 +28,7 @@
 #include "driver/gpio.h"
 #include "driver/rmt.h"
 #include "driver/uart.h"
+#include "driver/adc.h"
 #include "lwip/err.h"
 #include "lwip/sockets.h"
 #include "lwip/sys.h"
