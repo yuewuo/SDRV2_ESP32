@@ -4,6 +4,7 @@
         "inv_mpu_dmp_motion_driver.h": "c",
         "algorithm": "c",
         "limits": "c",
-        "istream": "c"
+        "istream": "c",
+        "ios": "c"
     }
 }
