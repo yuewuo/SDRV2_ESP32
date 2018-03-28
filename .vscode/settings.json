@@ -5,6 +5,7 @@
         "algorithm": "c",
         "limits": "c",
         "istream": "c",
-        "ios": "c"
+        "ios": "c",
+        "xlocale": "c"
     }
 }

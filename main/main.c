@@ -44,7 +44,7 @@ void app_main()
 	//xTaskCreate(&app_task, "app_task", 8192, NULL, 5, NULL);
 	//xTaskCreate(&AD8232_daemon_task, "AD8232_task", 8192, NULL, 5, NULL);
 	//xTaskCreate(WS2812B.demo.task, "ws2812host_task", 2048, NULL, 5, NULL);
-	//xTaskCreate(&WS2812_daemon_task, "WS2812_daemon_task", 8192, NULL, 5, NULL);
-	xTaskCreate(&MPU6050_daemon_task, "MPU6050_daemon_task", 8192, NULL, 5, NULL);
+	xTaskCreate(&WS2812_daemon_task, "WS2812_daemon_task", 8192, NULL, 5, NULL);
+	//xTaskCreate(&MPU6050_daemon_task, "MPU6050_daemon_task", 8192, NULL, 5, NULL);
 	ESP_LOGI(TAG, "main end");
 }
