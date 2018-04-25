@@ -5,6 +5,11 @@
         "algorithm": "c",
         "limits": "c",
         "istream": "c",
-        "ios": "c"
+        "ios": "c",
+        "xlocale": "c",
+        "clock.h": "c",
+        "xstring": "c",
+        "xutility": "c",
+        "ostream": "c"
     }
 }

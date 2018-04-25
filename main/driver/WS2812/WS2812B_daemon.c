@@ -7,7 +7,7 @@
  *     we could use this daemon to control the LED using higher level API
  */
 
-#define pixel_count 11 // you can change this value before compile
+#define pixel_count 13 // you can change this value before compile
 
 static const char TAG[] = "WS2812 Daemon";
 

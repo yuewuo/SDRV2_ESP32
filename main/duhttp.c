@@ -216,8 +216,8 @@ int DuHttpReceiver_AvailableSize(struct DuHttpReceiver* r)
     memcpy(buf+now_size, x, size);\
     now_size += size;\
 } while(0)
-int DuHttpSend(struct DuHttp* h, char* buf, int max_size)
-{
+
+int DuHttpSendHeadOnly(struct DuHttp* h, char* buf, int max_size) {
     int now_size = 0;
     char tmp[16];
     if (h->type == DuHttp_Type_GET || h->type == DuHttp_Type_POST) {
@@ -243,6 +243,12 @@ int DuHttpSend(struct DuHttp* h, char* buf, int max_size)
     	DuHttpSend_IO_ConstStr("\r\n");
 	}
     DuHttpSend_IO_Str(h->data); //send head lines (including "\r\n")
+    return now_size;
+}
+
+int DuHttpSend(struct DuHttp* h, char* buf, int max_size)
+{
+    int now_size = DuHttpSendHeadOnly(h, buf, max_size);
     if ((h->contentLength) + now_size >= max_size) return 0;
     memcpy(buf+now_size, h->content, h->contentLength);
     now_size += (h->contentLength);

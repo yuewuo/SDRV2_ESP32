@@ -50,17 +50,13 @@ static int doProxy(int uart_num, struct DuHttp* ori, int timeoutTICK, char* send
                 && 0 == strcmp(ori->headline[i].value, "no-wait")) {
             nowait = 1;
             ESP_LOGI(TAG, "proxy no-wait enabled");
-        }
-        if (0 != strcmp(ori->headline[i].key, "Content-Length"))
+        } else if (0 != strcmp(ori->headline[i].key, "Content-Length") && 0 != strcmp(ori->headline[i].key, "ESPProxyTo"))  // 尽可能地节约时间，串口上传输数据非常慢
             DuHttp_PushHeadline(sendDuHttp, ori->headline[i].key, ori->headline[i].value);
     }
     DuHttp_EndHeadline(sendDuHttp);
     DuHttp_PushData(sendDuHttp, ori->content, ori->contentLength);
     static char buf[8192];
     int len = DuHttpSend(sendDuHttp, buf, 8192);
-    ESP_LOGI(TAG, "proxy information is (%d):", len);
-    printf("%s\n", buf);
-    ESP_LOGI(TAG, "end proxy information");
     DuHttp_Release(sendDuHttp);
     int sendlen = UARTGrp.Send(uart_num, buf, len);
     if (sendlen != len) {

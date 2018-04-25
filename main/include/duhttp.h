@@ -84,6 +84,7 @@ char DuHttpReceiver_TryReadPack(struct DuHttpReceiver* r, struct DuHttp* pack);
 void DuHttpReceiver_TryResolveHeadLine(const char* str, struct DuHttp* pack);
 int DuHttpReceiver_AvailableSize(struct DuHttpReceiver* r);
 
+int DuHttpSendHeadOnly(struct DuHttp* h, char* buf, int max_size);
 int DuHttpSend(struct DuHttp* h, char* buf, int max_size);
 
 char *url_decode(char *str);

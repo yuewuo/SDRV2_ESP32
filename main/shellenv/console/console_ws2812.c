@@ -33,7 +33,7 @@ static int ws2812_console(int argc, char** argv) {
             return 0;
         } else if (ARGVCMP("-d")) {
             ++i;
-            delay = atol(argv[i]);
+            delay = atol(argv[i]) * 1000 / portTICK_PERIOD_MS;
         } else if (ARGVCMP("-b")) {
             breath = 1;
         } else if (ARGVCMP("-c") || ARGVCMP("--color")) {

@@ -1990,7 +1990,7 @@ static int get_st_biases(long *gyro, long *accel, unsigned char hw_test)
 
     if (i2c_read(st.hw->addr, st.reg->fifo_count_h, 2, data))
         return -1;
-
+    
     fifo_count = (data[0] << 8) | data[1];
     packet_count = fifo_count / MAX_PACKET_LENGTH;
     gyro[0] = gyro[1] = gyro[2] = 0;
@@ -2562,9 +2562,10 @@ int mpu_run_self_test(long *gyro, long *accel)
 
     /* For older chips, the self-test will be different. */
 #if defined MPU6050
-    for (ii = 0; ii < tries; ii++)
+    for (ii = 0; ii < tries; ii++) {
         if (!get_st_biases(gyro, accel, 0))
             break;
+    }
     if (ii == tries) {
         /* If we reach this point, we most likely encountered an I2C error.
          * We'll just report an error for all three sensors.

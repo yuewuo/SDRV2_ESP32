@@ -10,6 +10,7 @@ static void register_functions() {
 	console_register_nfc();
 	console_register_ws2812();
 	console_register_gpio();
+	console_register_socket();
 	// your register functions here
 }
 static void initialize_filesystem();
@@ -103,11 +104,11 @@ static int execute(char* cmd) {
 			printf("run one cmd: %s\n", head);
 			err = esp_console_run(head, &ret);
 			if (err == ESP_ERR_NOT_FOUND) {
-				Shell.Out.printf("ESP_ERR_NOT_FOUND \"%s\"\n", cmd);
-				printf("ESP_ERR_NOT_FOUND \"%s\"\n", cmd);
+				Shell.Out.printf("ESP_ERR_NOT_FOUND \"%s\"\n", head);
+				printf("ESP_ERR_NOT_FOUND \"%s\"\n", head);
 			} else if (err == ESP_ERR_INVALID_ARG) {
-				Shell.Out.printf("ESP_ERR_INVALID_ARG \"%s\"\n", cmd);
-				printf("ESP_ERR_INVALID_ARG \"%s\"\n", cmd);
+				Shell.Out.printf("ESP_ERR_INVALID_ARG \"%s\"\n", head);
+				printf("ESP_ERR_INVALID_ARG \"%s\"\n", head);
 			} else if (err == ESP_OK && ret != ESP_OK) {
 				Shell.Out.printf("Command returned non-zero error code: 0x%x\n", ret);
 				printf("Command returned non-zero error code: 0x%x\n", ret);

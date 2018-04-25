@@ -46,3 +46,6 @@ struct UARTGrp_Proxy_t {
 				, int sendbuflen, int* returnSize);
 };
 extern struct UARTGrp_Proxy_t UARTGrpProxy;
+
+void UARTGrp_socket_hsr_mpu6050_task(void *pvParameters);
+

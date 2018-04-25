@@ -1,51 +1,91 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>ESP32 Tools</title>
-<style type="text/css">
-#consoleOut {
-	border-color: #442FF5;
-	border-width: thick;
-	background-color: #F9F39D;
-}
-</style>
-<script language="javascript">
-	function esp32execcmd(cmd) {
-		var req;
-		var date = new Date();
-		if (window.XMLHttpRequest) {
-			req = new XMLHttpRequest();
-		} else {
-			req = new ActiveXObject("Microsoft.XMLHTTP");
-		}
-		req.open("POST", "exec", async=false); // need to wait for return
-		req.setRequestHeader("ESP32-client", "Broswer");
-		req.setRequestHeader("ESP32-time-sync", "" + date.getFullYear() + " " + (date.getMonth() + 1)
-								+ " " + date.getDate() + " " + date.getHours() + " " + date.getMinutes()
-								+ " " + date.getSeconds() + " " + date.getMilliseconds());
-		req.send(cmd);
-		return req.responseText;
-	}
-	function esp32execconsole() {
-		var espcmd = document.getElementById("consoleIn").value;
-		var ret = esp32execcmd(espcmd);
-		document.getElementById("consoleOut").innerHTML = ret;
-	}
-</script>
-</head>
-<body>
-<h1><strong>ESP32 builtin Tools</strong></h1>
-<div>
-	<h2>命令行工具</h2>
-	<h3>控制台输入</h3>
-	<textarea id="consoleIn">status</textarea>
-	<br>
-	<button onClick="esp32execconsole()">执行脚本</button>
-	<h3>控制台输出</h3>
-	<div id="consoleOut">此处显示console返回的内容</div>
-</div>
-
-
-</body>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+        <title>ESP32 Tools</title>
+		<link rel="stylesheet" href="weui.min.css"><!-- 这个调用ESP32存储的css文件 -->
+		<script type="text/javascript" src="weui.min.js"></script>
+		<link rel="stylesheet" href="weuimy.css"/>
+		<style type="text/css">
+			#consoleOut {
+				border-color: #442FF5;
+				border-width: thick;
+				background-color: #F9F39D;
+			}
+		</style>
+		<script type="text/javascript">
+			function esp32formatTime() {
+				var date = new Date();
+				return ""+date.getFullYear()+" "+(date.getMonth()+1)+" "+date.getDate()+" "+date.getHours()+" "+date.getMinutes()+" "+date.getSeconds()+" "+date.getMilliseconds();
+			}
+			function esp32execcmd(cmd) {
+				var req;
+				if (window.XMLHttpRequest) req = new XMLHttpRequest(); 
+				else req = new ActiveXObject("Microsoft.XMLHTTP");
+				req.open("POST", "exec", async=false); // need to wait for return
+				req.setRequestHeader("ESP32-client", "Broswer");
+				req.send(cmd);
+				return req.responseText;
+			}
+			function esp32execconsole() {
+				var espcmd = document.getElementById("consoleIn").value;
+				var ret = esp32execcmd(espcmd);
+				document.getElementById("consoleOut").innerHTML = ret;
+			}
+			function esp32syncTime() {
+				var date = new Date();
+				esp32execcmd('set time ' + esp32formatTime());
+				var ret = esp32execcmd('print time');
+				weui.alert(ret);
+			}
+			function esp32setbootscript() {
+				var boot = document.getElementById("bootscript").value;
+				weui.alert(esp32execcmd('set bootscript "' + boot + '"'));
+			}
+		</script>
+    </head>
+    <body>
+        <div class="page">
+            <div class="page__hd">
+				<h1 class="page__title">ESP32 builtin Tools</h1>
+                <p class="page__desc">ESP32-easy-develop程序套件由<a href="https://github.com/wuyuepku" style="color: purple">wy</a>发起编写，通过统一的网络接口和命令行解析工具，提供若干驱动，可以方便地进行在线配置硬件以及二次开发，更多信息参见<a href="readme.html">功能公告</a></a></p>
+            </div>
+            <div class="page__bd page__bd_spacing">
+				<div class="weui-cells__title">控制台输入</div>
+				<div class="weui-cells weui-cells_form">
+					<div class="weui-cell">
+						<div class="weui-cell__bd">
+							<textarea class="weui-textarea" placeholder="请输入文本" rows="3" id="consoleIn">status</textarea>
+						</div>
+					</div>
+				</div>
+				<button class="weui-btn weui-btn_primary" onClick="esp32execconsole()">执行脚本</button>
+				<div class="weui-cells__title">控制台输出</div>
+				<div id="consoleOut">此处显示console返回的内容</div>
+                <!--a class="weui-btn weui-btn_primary weui-btn_loading"><i class="weui-loading"></i>页面主操作 Loading</a-->
+				<h2 class="page__title">常用基础操作</h2>
+				<div class="weui-grids">
+					<a onclick="esp32syncTime()" class="weui-grid"><p class="weui-grid__label">同步时间</p></a>
+					<a onclick="esp32execcmd('reboot')" class="weui-grid"><p class="weui-grid__label">重启ESP32</p></a>
+					<a onclick="weui.alert(esp32execcmd('print bootscript'))" class="weui-grid"><p class="weui-grid__label">查看开机脚本</p></a>
+				</div>
+				<div class="weui-cells weui-cells_form">
+					<div class="weui-cell weui-cell_vcode">
+						<div class="weui-cell__hd"><label class="weui-label">设置开机脚本</label></div>
+						<div class="weui-cell__bd"><input class="weui-input" placeholder="请输入开机启动脚本" id="bootscript"></div>
+						<div class="weui-cell__ft"><button class="weui-vcode-btn" onclick="esp32setbootscript()">设置</button></div>
+					</div>
+				</div>
+				<h2 class="page__title">更多控制器</h2>
+				<div class="weui-grids">
+					<a class="weui-grid"><p class="weui-grid__label">WS2812</p></a>
+					<a class="weui-grid"><p class="weui-grid__label">串口穿透</p></a>
+				</div>
+            </div>
+        </div>
+        <script>
+            
+        </script>
+    </body>
 </html>
