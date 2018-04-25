@@ -6,6 +6,10 @@
         "limits": "c",
         "istream": "c",
         "ios": "c",
-        "xlocale": "c"
+        "xlocale": "c",
+        "clock.h": "c",
+        "xstring": "c",
+        "xutility": "c",
+        "ostream": "c"
     }
 }

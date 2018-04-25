@@ -24,10 +24,12 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 void initialise_wifi(void)
 {
     tcpip_adapter_init();
+    delay_ms(300);  // 增加延迟以防止掉电
     wifi_event_group = xEventGroupCreate();
     ESP_ERROR_CHECK( esp_event_loop_init(event_handler, NULL) );
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
+    delay_ms(300);  // 增加延迟以防止掉电
     ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
     wifi_config_t sta_config = {
     	.sta = {
@@ -40,6 +42,8 @@ void initialise_wifi(void)
     ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &sta_config) );
     ESP_ERROR_CHECK( esp_wifi_start() );
+    printf("%d\n", __LINE__);
+    delay_ms(300);  // 增加延迟以防止掉电
 }
 
 nvs_handle my_nvs_handle;

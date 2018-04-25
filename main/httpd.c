@@ -93,16 +93,19 @@ int duHttpHandler(char* outbuf, int maxsize, struct netconn *conn) {  // 新增�
     if (DuHttpReceiver_TryReadPack(&duHttpReceiver, &duHttp)) {
 		printf("Got one Pack!\n");
         char* proxyTo = DuHttp_FindValueByKey(&duHttp, "ESPProxyTo");
-        if (DuHttp_FindValueByKey(&duHttp, "ESP32-Long")) NO_EXPIRE_ENABLED = 1;  // 链接不会超时
-
+        if (DuHttp_FindValueByKey(&duHttp, "ESP32-Long")) {
+            ESP_LOGI(TAG, "NO_EXPIRE_ENABLED");
+            NO_EXPIRE_ENABLED = 1;  // 链接不会超时
+        }
         if ((duHttp.type == DuHttp_Type_GET || duHttp.type == DuHttp_Type_POST)
                 && proxyTo != NULL) {
             // do proxy
+            int proxyRet;
             if (0 == strcmp(proxyTo, "UART1")) {
-                UARTGrpProxy.doProxy(1, &duHttp, 1000 / portTICK_RATE_MS,
+                proxyRet = UARTGrpProxy.doProxy(1, &duHttp, 1000 / portTICK_RATE_MS,
                     outbuf, maxsize, &returnSize);
             } else if (0 == strcmp(proxyTo, "UART2")) {
-                UARTGrpProxy.doProxy(2, &duHttp, 1000 / portTICK_RATE_MS,
+                proxyRet = UARTGrpProxy.doProxy(2, &duHttp, 1000 / portTICK_RATE_MS,
                     outbuf, maxsize, &returnSize);
             }
         } else switch(duHttp.type) {
@@ -238,25 +241,29 @@ static void http_server_netconn_serve(struct netconn *conn) {
     struct netbuf *inbuf;
     char *buf;
     u16_t buflen;
-    //err_t err;
+    err_t err;
     int sendlen;
     /* Read the data from the port, blocking if nothing yet there.
     We assume the request (the part we care about) is in one netbuf */
     // 改成接收多次的模式，不然收大量数据的时候一定会出错！！！
     ESP_LOGI(TAG, "Long Connection Start");
     netconn_set_recvtimeout(conn, EXPIRE_MS);  // 设置超时时间
-    while (netconn_recv(conn, &inbuf) == ERR_OK) {
-        netbuf_data(inbuf, (void**)&buf, &buflen);
-        DuHttpReceiver_InBuf(&duHttpReceiver, buf, buflen);
-        /* Delete the buffer (netconn_recv gives us ownership,
-        so we have to make sure to deallocate the buffer) */
-        netbuf_delete(inbuf);
-        while ((sendlen = duHttpHandler(sendbuf, sizeof(sendbuf), conn)) != -1) {
-            ESP_LOGI(TAG, "Long Connection Handle one");
-            expireAt = xTaskGetTickCount() + EXPIRE_MS / portTICK_PERIOD_MS; // 超时时间从没有收到消息开始，这样浏览器可以连续好几个请求用同一个Tcp链接
-            netconn_write(conn, sendbuf, sendlen, NETCONN_NOCOPY);
+    err = netconn_recv(conn, &inbuf);
+    while (err == ERR_OK || err == ERR_TIMEOUT) {
+        if (err == ERR_OK) {
+            netbuf_data(inbuf, (void**)&buf, &buflen);
+            DuHttpReceiver_InBuf(&duHttpReceiver, buf, buflen);
+            /* Delete the buffer (netconn_recv gives us ownership,
+            so we have to make sure to deallocate the buffer) */
+            netbuf_delete(inbuf);
+            while ((sendlen = duHttpHandler(sendbuf, sizeof(sendbuf), conn)) != -1) {
+                ESP_LOGI(TAG, "Long Connection Handle one");
+                expireAt = xTaskGetTickCount() + EXPIRE_MS / portTICK_PERIOD_MS; // 超时时间从没有收到消息开始，这样浏览器可以连续好几个请求用同一个Tcp链接
+                netconn_write(conn, sendbuf, sendlen, NETCONN_NOCOPY);
+            }
         }
         if (!NO_EXPIRE_ENABLED && xTaskGetTickCount() > expireAt) break;  // 超时，不再接收数据
+        err = netconn_recv(conn, &inbuf);
     }
     ESP_LOGE(TAG, "Long Connection Break");
     /*err = netconn_recv(conn, &inbuf);

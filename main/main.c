@@ -40,11 +40,12 @@ void app_main()
 	ESP_LOGI(TAG, "printing results:");
 	printf("%s\n", Shell.Out.buffer());
 	ESP_LOGI(TAG, "end printing results:");
-    xTaskCreate(&httpd_task, "httpd_task", 16384, NULL, 5, NULL);
+    //xTaskCreate(&httpd_task, "httpd_task", 16384, NULL, 5, NULL);
 	//xTaskCreate(&app_task, "app_task", 8192, NULL, 5, NULL);
 	//xTaskCreate(&AD8232_daemon_task, "AD8232_task", 8192, NULL, 5, NULL);
 	//xTaskCreate(WS2812B.demo.task, "ws2812host_task", 2048, NULL, 5, NULL);
-	xTaskCreate(&WS2812_daemon_task, "WS2812_daemon_task", 8192, NULL, 5, NULL);
-	//xTaskCreate(&MPU6050_daemon_task, "MPU6050_daemon_task", 8192, NULL, 5, NULL);
+	//xTaskCreate(&WS2812_daemon_task, "WS2812_daemon_task", 8192, NULL, 5, NULL);
+	//xTaskCreate(&MPU6050_hsr_demo_task, "MPU6050_hsr_demo_task", 8192, NULL, 5, NULL);
+	xTaskCreate(&UARTGrp_socket_hsr_mpu6050_task, "UARTGrp_socket_hsr_mpu6050_task", 50000, NULL, 5, NULL);
 	ESP_LOGI(TAG, "main end");
 }

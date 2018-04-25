@@ -16,8 +16,8 @@
 //
 //#define ANBT_MPU6050_INT_STATE   GPIO_ReadInputDataBit(AnBT_MPU6050_INT_PORT, AnBT_MPU6050_INT)
 //
-#define ANBT_I2C_SDA 	17
-#define ANBT_I2C_SCL 	16
+#define ANBT_I2C_SDA 	19
+#define ANBT_I2C_SCL 	18
 
 //#define ANBT_I2C_PORT   GPIOB
 //
